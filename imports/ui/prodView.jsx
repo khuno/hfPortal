@@ -76,7 +76,7 @@ export default class ProdView extends Component {
           </tr>
         </thead>
         <tbody>
-          <tr><th colSpan="5">V8 R0.0</th></tr>
+          <tr><th colSpan="6">V8 R0.0</th></tr>
           <tr>
             <td><input type="checkbox" /></td>
             <td><span className="glyphicon glyphicon-plus"></span></td>
@@ -93,7 +93,7 @@ export default class ProdView extends Component {
             <td><StatusButton state="Produced" /></td>
             <td>20.12.2016</td>
           </tr>
-          <tr><th colSpan="5">V7 R2.0</th></tr>
+          <tr><th colSpan="6">V7 R2.0</th></tr>
           <tr>
             <td><input type="checkbox" /></td>
             <td><span className="glyphicon glyphicon-plus"></span></td>
@@ -131,7 +131,70 @@ export default class ProdView extends Component {
 
   renderCITTab() {
     return (
-      <p>CIT TAB</p>
+      <div className="container" id="citList">
+        <table className="table table-hover">
+          <thead>
+            <tr>
+              <th></th>
+              <th></th>
+              <th>CIT number</th>
+              <th>Product</th>
+              <th>Submitted by</th>
+              <th>Submitted date</th>
+              <th>Description</th>
+            </tr>
+            <tr>
+              <th></th>
+              <th></th>
+              <th><input type="text"/></th>
+              <th><input type="text"/></th>
+              <th><input type="text"/></th>
+              <th><input type="text"/></th>
+              <th><input type="text"/></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><th colSpan="7">Unassigned</th></tr>
+            <tr>
+              <td><input type="checkbox" /></td>
+              <td><span className="glyphicon glyphicon-plus"></span></td>
+              <td>UAS41854866</td>
+              <td>Assistant</td>
+              <td>Sergii</td>
+              <td>20.12.2016</td>
+              <td>SWM restarting problem</td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" /></td>
+              <td><span className="glyphicon glyphicon-plus"></span></td>
+              <td>UAS41854866</td>
+              <td>Manager</td>
+              <td>Sergii</td>
+              <td>20.12.2016</td>
+              <td>SWM restarting problem</td>
+            </tr>
+            <tr><th colSpan="7">HF9 V7 R2.0</th></tr>
+            <tr>
+              <td><input type="checkbox" /></td>
+              <td><span className="glyphicon glyphicon-plus"></span></td>
+              <td>UAS789654654</td>
+              <td>Assistant</td>
+              <td>Martin</td>
+              <td>06.06.2016</td>
+              <td>Segfault snmp deamon</td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" /></td>
+              <td><span className="glyphicon glyphicon-plus"></span></td>
+              <td>UAS789654654</td>
+              <td>Manager</td>
+              <td>Martin</td>
+              <td>07.06.2016</td>
+              <td>Segfault snmp deamon</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     )
   }
 
@@ -140,9 +203,6 @@ export default class ProdView extends Component {
         <div>
          {this.renderTabs()}
          {this.state.activeTab == TabsDev.hfTab ? this.renderHFTab() : this.renderCITTab()}
-
-
-
        </div>
       )
   }
