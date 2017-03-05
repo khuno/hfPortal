@@ -1,0 +1,15 @@
+/* CSS declarations go here */
+
+.navbar {
+  margin-bottom: 0px;
+}
+
+.row:not(:last-child) {
+    border-bottom: 1px solid #000;
+    margin-bottom: 10px;
+}
+
+
+#login-dropdown-list {
+  transform: translate(-45%, 5%);
+}
