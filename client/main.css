@@ -13,3 +13,13 @@
 #login-dropdown-list {
   transform: translate(-45%, 5%);
 }
+
+
+.btn-link {
+  color: black;
+  text-decoration: none;
+}
+
+.btn-link:hover {
+  color: black;
+}
