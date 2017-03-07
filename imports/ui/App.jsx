@@ -4,6 +4,7 @@ import AccountsUIWrapper from './AccountsUIWrapper.jsx';
 import DevView from './devView.jsx';
 import ProdView from './prodView.jsx';
 import { Roles } from 'meteor/alanning:roles';
+import { CITs } from '../api/cits.js'
 
 
 
@@ -45,10 +46,34 @@ App.propTypes = {
 };
 
 export default createContainer(({params}) => {
-  return {
-    priority: "P4",
-    description: "asd",
-    currentUser: Meteor.user(),
-    //tasks: Tasks.find({}).fetch(),
-  };
+  const currentUser = Meteor.user();
+
+  if (currentUser && Roles.userIsInRole(currentUser._id, ['developer']))
+  {
+    return {
+      priority: "P4",
+      description: "asd",
+      currentUser,
+      cits: CITs.find({owner: currentUser._id}).fetch()
+    }
+  }
+  else if (currentUser && Roles.userIsInRole(currentUser._id, ['production']))
+  {
+    return {
+      currentUser,
+      cits: CITs.find({}).fetch()
+    }
+  }
+  else if (currentUser && Roles.userIsInRole(currentUser._id, ['gvs']))
+  {
+    return {
+      currentUser
+    }
+  }
+  else {
+    return {
+      currentUser
+    }
+  }
+
 }, App);
