@@ -4,7 +4,8 @@ import AccountsUIWrapper from './AccountsUIWrapper.jsx';
 import DevView from './devView.jsx';
 import ProdView from './prodView.jsx';
 import { Roles } from 'meteor/alanning:roles';
-import { CITs } from '../api/cits.js'
+import { CITs } from '../api/cits.js';
+import { versions } from '../api/versions.js'
 
 
 
@@ -34,8 +35,8 @@ render() {
     return (
       <div className="container">
           {this.renderHeader()}
-          {(this.props.currentUser && Roles.userIsInRole(this.props.currentUser._id, ['developer'])) ? <DevView /> : null}
-          {(this.props.currentUser && Roles.userIsInRole(this.props.currentUser._id, ['production'])) ? <ProdView /> : null}
+          {(this.props.currentUser && Roles.userIsInRole(this.props.currentUser._id, ['developer'])) ? <DevView myCITs={this.props.cits} listVersions={this.props.listVersions} /> : null}
+          {(this.props.currentUser && Roles.userIsInRole(this.props.currentUser._id, ['production'])) ? <ProdView listCITs={this.props.cits} listVersions={this.props.listVersions}/> : null}
         </div>
       );
   }
@@ -54,14 +55,16 @@ export default createContainer(({params}) => {
       priority: "P4",
       description: "asd",
       currentUser,
-      cits: CITs.find({owner: currentUser._id}).fetch()
+      cits: CITs.find({owner: currentUser._id}).fetch(),
+      listVersions: versions.find({}).fetch()
     }
   }
   else if (currentUser && Roles.userIsInRole(currentUser._id, ['production']))
   {
     return {
       currentUser,
-      cits: CITs.find({}).fetch()
+      cits: CITs.find({}).fetch(),
+      listVersions: versions.find({}).fetch()
     }
   }
   else if (currentUser && Roles.userIsInRole(currentUser._id, ['gvs']))

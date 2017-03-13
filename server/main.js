@@ -1,6 +1,6 @@
 import { Roles } from 'meteor/alanning:roles';
 import '../imports/api/cits.js';
-
+import versions from '../imports/api/versions.js'
 /*
 var users = [
       {name:"sergii",email:"sergii@ixperta.com",roles:['developer']},
@@ -26,3 +26,15 @@ var users = [
 
     });
 */
+
+
+/*var list = [
+  { value: 'assistant_V8_0.1', label: 'Assistant V8 0.1' },
+  { value: 'manager_V8_0.1', label: 'Manager V8 0.1' },
+  { value: 'assistant_V8_1.5', label: 'Assistant V8 1.5' },
+  { value: 'manager_V8_1.5', label: 'Manager V8 1.5' }
+]
+
+_.each(list, function(version){
+  Meteor.call('versions.insert', version);
+});*/

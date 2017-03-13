@@ -20,6 +20,7 @@ Meteor.methods({
       ticketNo:    obj.ticketNo,
       comment:     obj.comment,
       deactivable: obj.deactivable,
+      version:     obj.version,
       components:  obj.components,
       mailsTo:     obj.mailsTo,
       createdAt: new Date(),

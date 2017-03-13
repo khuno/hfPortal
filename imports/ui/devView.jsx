@@ -42,6 +42,7 @@ export default class DevView extends Component {
           comment: "",
           selectedMails: "",
           additionalMails: "",
+          selectedVersions: ""
         }
     return initState;
   }
@@ -72,6 +73,11 @@ export default class DevView extends Component {
    this.setState({deactivable: ev.target.checked})
  }
 
+ handleAddVersions(val) {
+     //console.log("Selected: " + val);
+     this.setState({ selectedVersions: val });
+ }
+
  handleAddComponents(val) {
      //console.log("Selected: " + val);
      this.setState({ selectedComponents: val });
@@ -88,22 +94,29 @@ export default class DevView extends Component {
  handleSubmit(ev) {
    event.preventDefault();
    //console.log(this.props);
+   arrayVersions = this.state.selectedVersions.split(',');
+   console.log(arrayVersions);
+   //foreach version separated CIT
+   for (i = 0; i < arrayVersions.length; i++)
+   {
+     var submitedCIT = {
+       issueNo:     this.state.issueNo,
+       priority:    this.props.priority,
+       description: this.props.description,
+       ticketNo:    this.state.ticketNo,
+       comment:     this.state.comment,
+       deactivable: this.state.deactivable,
+       version:     arrayVersions[i],
+       components:  this.state.selectedComponents,
+       mailsTo:     this.state.selectedMails +(this.state.additionalMails===""? "" : (","+ this.state.additionalMails)),
 
-   var submitedCIT = {
-     issueNo:     this.state.issueNo,
-     priority:    this.props.priority,
-     description: this.props.description,
-     ticketNo:    this.state.ticketNo,
-     comment:     this.state.comment,
-     deactivable: this.state.deactivable,
-     components:  this.state.selectedComponents,
-     mailsTo:     this.state.selectedMails +(this.state.additionalMails===""? "" : (","+ this.state.additionalMails)),
+     }
 
+     console.log(submitedCIT);
+     //for now without validation
+     Meteor.call('cits.insert', submitedCIT);
    }
 
-   console.log(submitedCIT);
-   //for now without validation
-   Meteor.call('cits.insert', submitedCIT);
    //CITs.insert(submitedCIT);
 
    this.setState(this.initializeState());
@@ -132,6 +145,21 @@ export default class DevView extends Component {
  renderProductSpec() {
    return (
      <div className="row">
+       <div className="form-group">
+         <label htmlFor="componentsList">Versions</label>
+           <Select
+             name="form-field-name"
+             value={this.state.selectedVersions}
+             options={this.props.listVersions}
+             onChange={val => this.handleAddVersions(val)}
+             multi
+             simpleValue
+             placeholder="Select versions..."
+             backspaceToRemoveMessage=''
+           />
+         <input type="multiSelectInput" className="form-control" id="componentsList"
+                           value={this.state.selectedVersions} placeholder="Assistant..." />
+       </div>
        <div className="form-group">
          <label htmlFor="componentsList">Components</label>
            <Select
@@ -232,7 +260,7 @@ export default class DevView extends Component {
 
  renderListTab() {
    return (
-     <div className="jumbotron"> </div>
+     <div className="jumbotron"> {JSON.stringify(this.props.myCITs)} </div>
    )
  }
 
