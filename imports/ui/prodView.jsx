@@ -27,6 +27,26 @@ class StatusButton extends Component {
   }
 }
 
+class CitRow extends Component {
+
+  render() {
+    //console.log(this.props);
+    let version = _.findWhere(this.props.listVersions, {value: this.props.cit.version});
+    //console.log(version);
+    return (
+      <tr>
+        <td><input type="checkbox" /></td>
+        <td><span className="glyphicon glyphicon-plus"></span></td>
+        <td>{this.props.cit._id}</td>
+        <td>{version.label}</td>
+        <td>{this.props.cit.email}</td>
+        <td>{this.props.cit.createdAt.toLocaleString()}</td>
+        <td>{this.props.cit.description}</td>
+      </tr>
+    )
+  }
+}
+
 export default class ProdView extends Component {
 
   constructor() {
@@ -60,14 +80,12 @@ export default class ProdView extends Component {
         <thead>
           <tr>
             <th></th>
-            <th></th>
             <th>HF number</th>
             <th>Product</th>
             <th>Status</th>
             <th>Last modify</th>
           </tr>
           <tr>
-            <th></th>
             <th></th>
             <th><input type="text"/></th>
             <th><input type="text"/></th>
@@ -76,9 +94,8 @@ export default class ProdView extends Component {
           </tr>
         </thead>
         <tbody>
-          <tr><th colSpan="6">V8 R0.0</th></tr>
+          <tr><th colSpan="5">V8 R0.0</th></tr>
           <tr>
-            <td><input type="checkbox" /></td>
             <td><span className="glyphicon glyphicon-plus"></span></td>
             <td>HF 1</td>
             <td>Assistant</td>
@@ -86,16 +103,14 @@ export default class ProdView extends Component {
             <td>20.12.2016</td>
           </tr>
           <tr>
-            <td><input type="checkbox" /></td>
             <td><span className="glyphicon glyphicon-plus"></span></td>
             <td>HF 1</td>
             <td>Manager</td>
             <td><StatusButton state="Produced" /></td>
             <td>20.12.2016</td>
           </tr>
-          <tr><th colSpan="6">V7 R2.0</th></tr>
+          <tr><th colSpan="5">V7 R2.0</th></tr>
           <tr>
-            <td><input type="checkbox" /></td>
             <td><span className="glyphicon glyphicon-plus"></span></td>
             <td>HF 8</td>
             <td>Assistant</td>
@@ -103,7 +118,6 @@ export default class ProdView extends Component {
             <td>06.06.2016</td>
           </tr>
           <tr>
-            <td><input type="checkbox" /></td>
             <td><span className="glyphicon glyphicon-plus"></span></td>
             <td>HF 8</td>
             <td>Manager</td>
@@ -127,6 +141,31 @@ export default class ProdView extends Component {
         {this.renderHFTable()}
       </div>
     )
+  }
+
+  renderCITsByHF(hfVer) {
+    var unsCits = [];
+    console.log(hfVer);
+    if ( hfVer == undefined ) {
+      unsCits = _.where(this.props.listCITs, {hf: undefined});
+      hfVer = "Unassigned";
+    }
+    else {
+      unsCits = _.where(this.props.listCITs, {hf: hfVer});
+    }
+
+    let key = new Date();
+    console.log(unsCits);
+    var toReturn = [];
+    //if any CIT not included to HF
+    if (unsCits.length !== 0) {
+      toReturn = [
+        <tr key={key.getTime()}><th colSpan="7">{hfVer}</th></tr>,
+        ...unsCits.map((cit) => <CitRow key={cit._id } cit={cit} listVersions={this.props.listVersions}/>)
+      ];
+    }
+
+    return toReturn;
   }
 
   renderCITTab() {
@@ -154,44 +193,8 @@ export default class ProdView extends Component {
             </tr>
           </thead>
           <tbody>
-            <tr><th colSpan="7">Unassigned</th></tr>
-            <tr>
-              <td><input type="checkbox" /></td>
-              <td><span className="glyphicon glyphicon-plus"></span></td>
-              <td>UAS41854866</td>
-              <td>Assistant</td>
-              <td>Sergii</td>
-              <td>20.12.2016</td>
-              <td>SWM restarting problem</td>
-            </tr>
-            <tr>
-              <td><input type="checkbox" /></td>
-              <td><span className="glyphicon glyphicon-plus"></span></td>
-              <td>UAS41854866</td>
-              <td>Manager</td>
-              <td>Sergii</td>
-              <td>20.12.2016</td>
-              <td>SWM restarting problem</td>
-            </tr>
-            <tr><th colSpan="7">HF9 V7 R2.0</th></tr>
-            <tr>
-              <td><input type="checkbox" /></td>
-              <td><span className="glyphicon glyphicon-plus"></span></td>
-              <td>UAS789654654</td>
-              <td>Assistant</td>
-              <td>Martin</td>
-              <td>06.06.2016</td>
-              <td>Segfault snmp deamon</td>
-            </tr>
-            <tr>
-              <td><input type="checkbox" /></td>
-              <td><span className="glyphicon glyphicon-plus"></span></td>
-              <td>UAS789654654</td>
-              <td>Manager</td>
-              <td>Martin</td>
-              <td>07.06.2016</td>
-              <td>Segfault snmp deamon</td>
-            </tr>
+            {this.renderCITsByHF()}
+            {this.renderCITsByHF("HF9 V7 R2.0")}
           </tbody>
         </table>
       </div>
