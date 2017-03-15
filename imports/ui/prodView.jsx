@@ -1,4 +1,8 @@
 import React, { Component, PropTypes } from 'react';
+import Select from 'react-select';
+import { Meteor } from 'meteor/meteor';
+import '../api/hfs.js';
+import 'react-select/dist/react-select.css';
 
 
 const TabsDev = {
@@ -57,6 +61,9 @@ export default class ProdView extends Component {
   initializeState() {
     var initState = {
           activeTab: TabsDev.hfTab,
+          defineHF: false,
+          selectedVersion: "",
+          buttonHFDisabled: false
         }
     return initState;
   }
@@ -64,6 +71,31 @@ export default class ProdView extends Component {
   onTabSelected(ev, selectedTab) {
           this.setState({ activeTab: selectedTab });
       }
+
+  handleDefineHF() {
+    if (this.state.defineHF === false) {
+      this.setState({defineHF: true, buttonHFDisabled: true});
+    }
+    else {
+      /*let hf = {
+        version: this.state.selectedVersion.value,
+      }*/
+      console.log(this.state.selectedVersion.value);
+      Meteor.call('hfs.insert', this.state.selectedVersion.value);
+    }
+  }
+
+  handleCancel() {
+    this.setState({
+      defineHF: false,
+      selectedVersion: "",
+      buttonHFDisabled: false
+    });
+  }
+
+  handleSelectedVersion(val) {
+    this.setState({ selectedVersion: val, buttonHFDisabled: !this.state.buttonHFDisabled});
+  }
 
   renderTabs() {
       return <ul className="nav nav-tabs tab">
@@ -129,14 +161,32 @@ export default class ProdView extends Component {
     )
   }
 
+  renderDefiningForm() {
+    return (
+      <div className="col-md-2">
+        <Select
+          name="form-field-name"
+          value={this.state.selectedVersion}
+          options={this.props.listVersions}
+          onChange={val => this.handleSelectedVersion(val)}
+          placeholder='Select version...'
+        />
+
+      </div>
+    )
+  }
+
   renderHFTab() {
     return (
       <div className="container" id="hfList">
-        <div className="row"></div>
         <div className="row">
-          <button type="button" className="btn btn-info">
-            Define new HF
-          </button>
+          {this.state.defineHF ? this.renderDefiningForm() : null}
+          <div className="col-md-4">
+            <button type="button" className="btn btn-info" onClick={this.handleDefineHF.bind(this)} disabled={this.state.buttonHFDisabled}>
+              Define new HF
+            </button>
+            {this.state.defineHF ? <button type="button" className="btn btn-error" onClick={this.handleCancel.bind(this)}>Cancel</button> : null}
+          </div>
         </div>
         {this.renderHFTable()}
       </div>

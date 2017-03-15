@@ -1,5 +1,6 @@
 import { Roles } from 'meteor/alanning:roles';
 import '../imports/api/cits.js';
+import '../imports/api/hfs.js'
 import versions from '../imports/api/versions.js'
 /*
 var users = [
