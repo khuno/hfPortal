@@ -1,6 +1,8 @@
 import React, { Component, PropTypes } from 'react';
 import Select from 'react-select';
-import { CITs } from '../api/cits.js'
+import '../api/cits.js';
+
+import 'react-select/dist/react-select.css';
 
 var listComponents = [
     { value: 'swt', label: 'ASswt' },
