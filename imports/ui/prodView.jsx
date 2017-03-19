@@ -221,6 +221,11 @@ export default class ProdView extends Component {
   renderCITTab() {
     return (
       <div className="container" id="citList">
+        <div className="row">
+          <button type="button" className="btn btn-info">
+            Add to HF
+          </button>
+        </div>
         <table className="table table-hover">
           <thead>
             <tr>
