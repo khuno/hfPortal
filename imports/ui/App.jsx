@@ -5,7 +5,8 @@ import DevView from './devView.jsx';
 import ProdView from './prodView.jsx';
 import { Roles } from 'meteor/alanning:roles';
 import { CITs } from '../api/cits.js';
-import { versions } from '../api/versions.js'
+import { versions } from '../api/versions.js';
+import { hfs } from '../api/hfs.js';
 
 
 
@@ -36,7 +37,7 @@ render() {
       <div className="container">
           {this.renderHeader()}
           {(this.props.currentUser && Roles.userIsInRole(this.props.currentUser._id, ['developer'])) ? <DevView myCITs={this.props.cits} listVersions={this.props.listVersions} /> : null}
-          {(this.props.currentUser && Roles.userIsInRole(this.props.currentUser._id, ['production'])) ? <ProdView listCITs={this.props.cits} listVersions={this.props.listVersions}/> : null}
+          {(this.props.currentUser && Roles.userIsInRole(this.props.currentUser._id, ['production'])) ? <ProdView listCITs={this.props.cits} listVersions={this.props.listVersions} listHFs={this.props.listHFs} /> : null}
         </div>
       );
   }
@@ -64,7 +65,8 @@ export default createContainer(({params}) => {
     return {
       currentUser,
       cits: CITs.find({}).fetch(),
-      listVersions: versions.find({}).fetch()
+      listVersions: versions.find({}).fetch(),
+      listHFs: hfs.find({}).fetch(),
     }
   }
   else if (currentUser && Roles.userIsInRole(currentUser._id, ['gvs']))

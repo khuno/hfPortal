@@ -18,10 +18,10 @@ Meteor.methods({
     }
 
     let highestHF = hfs.find({version: ver},{limit: 1,sort: {hfNumber:-1}}).fetch();
-    console.log(highestHF);
+    //console.log(highestHF);
     let newHfNumber = (highestHF[0]? (highestHF[0].hfNumber + 1) : 1);
 
-    console.log(ver);
+    //console.log(ver);
 
     hfs.insert({
       version: ver,
