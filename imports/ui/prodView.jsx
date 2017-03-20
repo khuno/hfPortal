@@ -1,7 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import Select from 'react-select';
 import { Meteor } from 'meteor/meteor';
-import '../api/hfs.js';
 import 'react-select/dist/react-select.css';
 
 
@@ -34,9 +33,9 @@ class StatusButton extends Component {
 class CitRow extends Component {
 
   render() {
-    //console.log(this.props);
-    let version = _.findWhere(this.props.listVersions, {value: this.props.cit.version});
-    //console.log(version);
+    console.log(this.props);
+    let version = _.findWhere(this.props.listVersions, {version: this.props.cit.version});
+    console.log(version);
     return (
       <tr>
         <td><input type="checkbox" /></td>
@@ -50,6 +49,12 @@ class CitRow extends Component {
     )
   }
 }
+
+/*class HFRow extends Component {
+  render() {
+    let ver
+  }
+}*/
 
 export default class ProdView extends Component {
 
@@ -81,7 +86,9 @@ export default class ProdView extends Component {
         version: this.state.selectedVersion.value,
       }*/
       console.log(this.state.selectedVersion.value);
-      Meteor.call('hfs.insert', this.state.selectedVersion.value);
+      Meteor.call('hfs.insert', this.state.selectedVersion);
+
+      this.setState(this.initializeState());
     }
   }
 

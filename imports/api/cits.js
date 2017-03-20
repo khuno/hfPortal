@@ -2,7 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
 
-export const CITs = new Mongo.Collection('CITs');
+export const cits = new Mongo.Collection('cits');
 
 Meteor.methods({
   'cits.insert'(obj)
@@ -13,7 +13,7 @@ Meteor.methods({
       throw new Meteor.Error('not-authorized');
     }
 
-    CITs.insert({
+    cits.insert({
       issueNo:     obj.issueNo,
       priority:    obj.priority,
       description: obj.description,
@@ -21,6 +21,7 @@ Meteor.methods({
       comment:     obj.comment,
       deactivable: obj.deactivable,
       version:     obj.version,
+      product:     obj.product,
       components:  obj.components,
       mailsTo:     obj.mailsTo,
       createdAt: new Date(),

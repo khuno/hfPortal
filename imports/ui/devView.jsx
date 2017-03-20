@@ -44,7 +44,7 @@ export default class DevView extends Component {
           comment: "",
           selectedMails: "",
           additionalMails: "",
-          selectedVersions: ""
+          selectedVersions: []
         }
     return initState;
   }
@@ -96,7 +96,7 @@ export default class DevView extends Component {
  handleSubmit(ev) {
    event.preventDefault();
    //console.log(this.props);
-   arrayVersions = this.state.selectedVersions.split(',');
+   arrayVersions = this.state.selectedVersions;
    console.log(arrayVersions);
    //foreach version separated CIT
    for (i = 0; i < arrayVersions.length; i++)
@@ -108,7 +108,8 @@ export default class DevView extends Component {
        ticketNo:    this.state.ticketNo,
        comment:     this.state.comment,
        deactivable: this.state.deactivable,
-       version:     arrayVersions[i],
+       version:     arrayVersions[i].version,
+       product:     arrayVersions[i].product,
        components:  this.state.selectedComponents,
        mailsTo:     this.state.selectedMails +(this.state.additionalMails===""? "" : (","+ this.state.additionalMails)),
 
@@ -155,7 +156,6 @@ export default class DevView extends Component {
              options={this.props.listVersions}
              onChange={val => this.handleAddVersions(val)}
              multi
-             simpleValue
              placeholder="Select versions..."
              backspaceToRemoveMessage=''
            />

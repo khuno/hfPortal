@@ -8,8 +8,8 @@ export const hfs = new Mongo.Collection('hfs');
 Meteor.methods({
   'hfs.insert'(ver)
   {
-    check(ver, String);
-
+    check(ver, Object);
+    console.log(ver);
     if(! this.userId) {
       throw new Meteor.Error('not-authorized');
     }
@@ -17,14 +17,15 @@ Meteor.methods({
       throw new Meteor.Error('not-permitted');
     }
 
-    let highestHF = hfs.find({version: ver},{limit: 1,sort: {hfNumber:-1}}).fetch();
+    let highestHF = hfs.find({version: ver.version, product: ver.product},{limit: 1,sort: {hfNumber:-1}}).fetch();
     //console.log(highestHF);
     let newHfNumber = (highestHF[0]? (highestHF[0].hfNumber + 1) : 1);
 
     //console.log(ver);
 
     hfs.insert({
-      version: ver,
+      version: ver.version,
+      product: ver.product,
       modifiedAt: new Date(),
       status: "Defined",
       hfNumber: newHfNumber

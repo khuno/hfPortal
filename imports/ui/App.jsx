@@ -4,7 +4,7 @@ import AccountsUIWrapper from './AccountsUIWrapper.jsx';
 import DevView from './devView.jsx';
 import ProdView from './prodView.jsx';
 import { Roles } from 'meteor/alanning:roles';
-import { CITs } from '../api/cits.js';
+import { cits } from '../api/cits.js';
 import { versions } from '../api/versions.js';
 import { hfs } from '../api/hfs.js';
 
@@ -56,7 +56,7 @@ export default createContainer(({params}) => {
       priority: "P4",
       description: "asd",
       currentUser,
-      cits: CITs.find({owner: currentUser._id}).fetch(),
+      cits: cits.find({owner: currentUser._id}).fetch(),
       listVersions: versions.find({}).fetch()
     }
   }
@@ -64,7 +64,7 @@ export default createContainer(({params}) => {
   {
     return {
       currentUser,
-      cits: CITs.find({}).fetch(),
+      cits: cits.find({}).fetch(),
       listVersions: versions.find({}).fetch(),
       listHFs: hfs.find({}).fetch(),
     }
