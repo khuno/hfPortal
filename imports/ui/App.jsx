@@ -37,7 +37,8 @@ render() {
       <div className="container">
           {this.renderHeader()}
           {(this.props.currentUser && Roles.userIsInRole(this.props.currentUser._id, ['developer'])) ? <DevView myCITs={this.props.cits} listVersions={this.props.listVersions} /> : null}
-          {(this.props.currentUser && Roles.userIsInRole(this.props.currentUser._id, ['production'])) ? <ProdView listCITs={this.props.cits} listVersions={this.props.listVersions} listHFs={this.props.listHFs} /> : null}
+          {(this.props.currentUser && Roles.userIsInRole(this.props.currentUser._id, ['production'])) ?
+              <ProdView listCITs={this.props.cits} listVersions={this.props.listVersions} listHFs={this.props.listHFs} arrVersions={_.keys(_.countBy(this.props.listVersions, function(ver){ return ver.version; }))}/> : null}
         </div>
       );
   }

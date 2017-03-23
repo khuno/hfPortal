@@ -18,7 +18,9 @@ Meteor.methods({
     }
     versions.insert({
       value: obj.value,
-      label: obj.label
+      label: obj.label,
+      version: obj.version,
+      product: obj.product
     });
   }
 });

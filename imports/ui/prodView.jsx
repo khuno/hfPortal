@@ -9,6 +9,10 @@ const TabsDev = {
     citTab : 1
 }
 
+String.prototype.capitalize = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+}
+
 class StatusButton extends Component {
 
   render() {
@@ -33,9 +37,9 @@ class StatusButton extends Component {
 class CitRow extends Component {
 
   render() {
-    console.log(this.props);
+    //console.log(this.props);
     let version = _.findWhere(this.props.listVersions, {version: this.props.cit.version});
-    console.log(version);
+    //console.log(version);
     return (
       <tr>
         <td><input type="checkbox" /></td>
@@ -50,11 +54,19 @@ class CitRow extends Component {
   }
 }
 
-/*class HFRow extends Component {
+class HFRow extends Component {
   render() {
-    let ver
+    return (
+      <tr>
+        <td><span className="glyphicon glyphicon-plus"></span></td>
+        <td>HF {this.props.hf.hfNumber}</td>
+        <td>{this.props.hf.product.capitalize()}</td>
+        <td><StatusButton state={this.props.hf.status}/></td>
+        <td>{this.props.hf.modifiedAt.toLocaleString()}</td>
+      </tr>
+    )
   }
-}*/
+}
 
 export default class ProdView extends Component {
 
@@ -68,9 +80,16 @@ export default class ProdView extends Component {
           activeTab: TabsDev.hfTab,
           defineHF: false,
           selectedVersion: "",
-          buttonHFDisabled: false
+          buttonHFDisabled: false,
         }
     return initState;
+  }
+
+  getVersionLabel(ver, list) {
+
+    let obj = _.findWhere(list, {version: ver});
+
+    return obj.label.split(/ (.+)/)[1] || "";
   }
 
   onTabSelected(ev, selectedTab) {
@@ -113,7 +132,25 @@ export default class ProdView extends Component {
             </ul>;
   }
 
+  renderHFsByVersion() {
+    var toReturn = [];
+    for (ver of this.props.arrVersions) {
+      let tmpHFs = _.where(this.props.listHFs, {version: ver});
+      let key = new Date();
+      ver = this.getVersionLabel(ver, this.props.listVersions);
+      if ( tmpHFs.length > 0 )
+      {
+        toReturn = _.union(toReturn,[
+          <tr key={key.getTime()+Math.random()}><th colSpan="5">{ver}</th></tr>,
+          ...tmpHFs.map((hf) => <HFRow key={hf._id } hf={hf}/>)
+        ]);
+      }
+    }
+    return toReturn;
+  }
+
   renderHFTable() {
+    console.log();
     return (
       <table className="table table-hover">
         <thead>
@@ -133,36 +170,7 @@ export default class ProdView extends Component {
           </tr>
         </thead>
         <tbody>
-          <tr><th colSpan="5">V8 R0.0</th></tr>
-          <tr>
-            <td><span className="glyphicon glyphicon-plus"></span></td>
-            <td>HF 1</td>
-            <td>Assistant</td>
-            <td> <StatusButton state="Released"/></td>
-            <td>20.12.2016</td>
-          </tr>
-          <tr>
-            <td><span className="glyphicon glyphicon-plus"></span></td>
-            <td>HF 1</td>
-            <td>Manager</td>
-            <td><StatusButton state="Produced" /></td>
-            <td>20.12.2016</td>
-          </tr>
-          <tr><th colSpan="5">V7 R2.0</th></tr>
-          <tr>
-            <td><span className="glyphicon glyphicon-plus"></span></td>
-            <td>HF 8</td>
-            <td>Assistant</td>
-            <td><StatusButton state="Started up/In test" /></td>
-            <td>06.06.2016</td>
-          </tr>
-          <tr>
-            <td><span className="glyphicon glyphicon-plus"></span></td>
-            <td>HF 8</td>
-            <td>Manager</td>
-            <td><StatusButton state="Tested"/></td>
-            <td>07.06.2016</td>
-          </tr>
+          {this.renderHFsByVersion()}
         </tbody>
       </table>
     )
