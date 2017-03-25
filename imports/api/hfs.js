@@ -30,5 +30,21 @@ Meteor.methods({
       status: "defined",
       hfNumber: newHfNumber
     });
+  },
+  
+  'hfs.setStatus'(id, newStatus)
+  {
+    check(id, String);
+    check(newStatus, String);
+
+    if(! this.userId) {
+      throw new Meteor.Error('not-authorized');
+    }
+    if(! Roles.userIsInRole(this.userId, ['production'])) {
+      throw new Meteor.Error('not-permitted');
+    }
+
+    hfs.update(id, { $set: {status: newStatus}});
+
   }
 });

@@ -15,22 +15,41 @@ String.prototype.capitalize = function() {
 
 class StatusButton extends Component {
 
-  render() {
+  changeStatus(toStatus) {
+    console.log(this.props.hfId,toStatus);
+    Meteor.call('hfs.setStatus', this.props.hfId, toStatus);
+  }
+
+  renderNextStatuses(currentStatus) {
+    // console.log(currentStatus);
+    // console.log(currentStatus.nextStatuses);
     return (
-      <div className="btn-group">
-        <button type="button" className="btn btn-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          {this.props.state} <span className="caret"></span>
-        </button>
-        <ul className="dropdown-menu">
-          <li><a href="#">Requested</a></li>
-          <li><a href="#">Produced</a></li>
-          <li><a href="#">Started up/In test</a></li>
-          <li><a href="#">Reproduction requested</a></li>
-          <li><a href="#">Tested</a></li>
-          <li><a href="#">Released</a></li>
-        </ul>
-      </div>
-    )
+      <ul className="dropdown-menu">
+        {currentStatus.nextStatuses.map((next) => (<li key={Math.random()}><a href="javascript:void(0)" onClick={ev => this.changeStatus(next)}>{_.findWhere(this.props.listStatuses, {value: next}).label}</a></li>))}
+      </ul>)
+  }
+
+  render() {
+    let status = _.findWhere(this.props.listStatuses, {value: this.props.state});
+    var toReturn = {};
+    if (status.nextStatuses.length != 0)
+    {
+      console.log(status);
+      toReturn = (
+        <div className="btn-group">
+          <button type="button" className="btn btn-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            {status.label} <span className="caret"></span>
+          </button>
+          {this.renderNextStatuses(status)}
+        </div>
+      )
+    }
+    else {
+      toReturn = (
+        <b>{status.label}</b>
+      )
+    }
+    return toReturn;
   }
 }
 
@@ -61,7 +80,7 @@ class HFRow extends Component {
         <td><span className="glyphicon glyphicon-plus"></span></td>
         <td>HF {this.props.hf.hfNumber}</td>
         <td>{this.props.hf.product.capitalize()}</td>
-        <td><StatusButton state={this.props.hf.status}/></td>
+        <td><StatusButton state={this.props.hf.status} listStatuses={this.props.listStatuses} hfId={this.props.hf._id}/></td>
         <td>{this.props.hf.modifiedAt.toLocaleString()}</td>
       </tr>
     )
@@ -142,7 +161,7 @@ export default class ProdView extends Component {
       {
         toReturn = _.union(toReturn,[
           <tr key={key.getTime()+Math.random()}><th colSpan="5">{ver}</th></tr>,
-          ...tmpHFs.map((hf) => <HFRow key={hf._id } hf={hf}/>)
+          ...tmpHFs.map((hf) => <HFRow key={hf._id } hf={hf} listStatuses={this.props.listStatuses}/>)
         ]);
       }
     }

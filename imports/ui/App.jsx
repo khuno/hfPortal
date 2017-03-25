@@ -7,6 +7,7 @@ import { Roles } from 'meteor/alanning:roles';
 import { cits } from '../api/cits.js';
 import { versions } from '../api/versions.js';
 import { hfs } from '../api/hfs.js';
+import { statuses } from '../api/statuses.js';
 
 
 
@@ -38,7 +39,9 @@ render() {
           {this.renderHeader()}
           {(this.props.currentUser && Roles.userIsInRole(this.props.currentUser._id, ['developer'])) ? <DevView myCITs={this.props.cits} listVersions={this.props.listVersions} /> : null}
           {(this.props.currentUser && Roles.userIsInRole(this.props.currentUser._id, ['production'])) ?
-              <ProdView listCITs={this.props.cits} listVersions={this.props.listVersions} listHFs={this.props.listHFs} arrVersions={_.keys(_.countBy(this.props.listVersions, function(ver){ return ver.version; }))}/> : null}
+              <ProdView listCITs={this.props.cits} listVersions={this.props.listVersions} listHFs={this.props.listHFs}
+                        arrVersions={_.keys(_.countBy(this.props.listVersions, function(ver){ return ver.version; }))}
+                        listStatuses={this.props.listStatuses}/> : null}
         </div>
       );
   }
@@ -68,6 +71,7 @@ export default createContainer(({params}) => {
       cits: cits.find({}).fetch(),
       listVersions: versions.find({}).fetch(),
       listHFs: hfs.find({}).fetch(),
+      listStatuses: statuses.find({}).fetch()
     }
   }
   else if (currentUser && Roles.userIsInRole(currentUser._id, ['gvs']))
