@@ -1,16 +1,21 @@
 import { Roles } from 'meteor/alanning:roles';
 import '../imports/api/cits.js';
-import '../imports/api/hfs.js'
-import versions from '../imports/api/versions.js'
-/*
-var users = [
-      {name:"sergii",email:"sergii@ixperta.com",roles:['developer']},
-      {name:"franta",email:"franta@ixperta.com",roles:['developer']},
-      {name:"alina",email:"alina@unify.com",roles:['gvs']},
-      {name:"stefan",email:"stefan@unify.com",roles:['production', 'admin']},
-    ];
+import '../imports/api/hfs.js';
+import {versions} from '../imports/api/versions.js';
+import {statuses} from '../imports/api/statuses.js';
 
-    _.each(users, function (user) {
+Meteor.startup(function () {
+  //initial creating of versions collection
+  if (versions.find().count() === 0) {
+    JSON.parse(Assets.getText('versions.json')).forEach(function (version) {
+      versions.insert(version);
+      //Meteor.call('versions.insert', version);
+    });
+  }
+
+  //initial creating of users
+  if (Meteor.users.find().count() === 0) {
+    JSON.parse(Assets.getText('users_init.json')).forEach(function (user) {
       var id;
 
       id = Accounts.createUser({
@@ -24,18 +29,15 @@ var users = [
         // after `Accounts.createUser` or `Accounts.onCreate`
         Roles.addUsersToRoles(id, user.roles);
       }
-
     });
-*/
+  }
 
+  //initial creating of statuses collection
+  if (statuses.find().count() === 0) {
+    JSON.parse(Assets.getText('statuses.json')).forEach(function (status) {
+      statuses.insert(status);
+      //Meteor.call('statuses.insert', status);
+    });
+  }
 
-/*var list = [
-  { value: 'assistant_V8_0.1', label: 'Assistant V8 0.1' },
-  { value: 'manager_V8_0.1', label: 'Manager V8 0.1' },
-  { value: 'assistant_V8_1.5', label: 'Assistant V8 1.5' },
-  { value: 'manager_V8_1.5', label: 'Manager V8 1.5' }
-]
-
-_.each(list, function(version){
-  Meteor.call('versions.insert', version);
-});*/
+});

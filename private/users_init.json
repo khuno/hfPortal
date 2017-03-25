@@ -1,0 +1,6 @@
+[
+  {"name":"stefan","email":"stefan@unify.com","roles":["production", "admin"]},
+  {"name":"alina","email":"alina@unify.com","roles":["gvs"]},
+  {"name":"sergii","email":"sergii@ixperta.com","roles":["developer"]},
+  {"name":"franta","email":"franta@ixperta.com","roles":["developer"]}
+]

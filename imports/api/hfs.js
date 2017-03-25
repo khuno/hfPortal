@@ -9,7 +9,7 @@ Meteor.methods({
   'hfs.insert'(ver)
   {
     check(ver, Object);
-    console.log(ver);
+    //console.log(ver);
     if(! this.userId) {
       throw new Meteor.Error('not-authorized');
     }
@@ -27,7 +27,7 @@ Meteor.methods({
       version: ver.version,
       product: ver.product,
       modifiedAt: new Date(),
-      status: "Defined",
+      status: "defined",
       hfNumber: newHfNumber
     });
   }

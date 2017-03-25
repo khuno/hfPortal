@@ -1,0 +1,8 @@
+[
+    { "value" : "assistant_V8_0.1", "label" : "Assistant V8 R0.1", "product" : "assistant", "version" : "v8_r0.1" },
+    { "value" : "manager_V8_0.1", "label" : "Manager V8 R0.1", "product" : "manager", "version" : "v8_r0.1" },
+    { "value" : "assistant_V8_1.5", "label" : "Assistant V8 R1.5", "product" : "assistant", "version" : "v8_r1.5" },
+    { "value" : "manager_V8_1.5", "label" : "Manager V8 R1.5", "product" : "manager", "version" : "v8_r1.5" },
+    { "value" : "manager_V7_2.14", "label" : "Manager V7 R2.14", "product" : "manager", "version" : "v7_r2.14" },
+    { "value" : "assistant_V7_2.14", "label" : "Assistant V7 R2.14", "product" : "assistant", "version" : "v7_r2.14" }
+]

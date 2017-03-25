@@ -1,0 +1,9 @@
+[
+  {"value": "defined", "label": "Defined", "nextStatuses": ["requested"]},
+  {"value": "requested", "label": "Requested", "nextStatuses": ["produced"]},
+  {"value": "produced", "label": "Produced", "nextStatuses": ["start_test","repro_req"]},
+  {"value": "repro_req", "label": "Reproduction requested", "nextStatuses": ["produced"]},
+  {"value": "start_test", "label": "Started up/In test", "nextStatuses": ["tested"]},
+  {"value": "tested", "label": "Tested", "nextStatuses": ["released"]},
+  {"value": "released", "label": "Released", "nextStatuses": []}
+]
