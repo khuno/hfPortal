@@ -34,7 +34,7 @@ class StatusButton extends Component {
     var toReturn = {};
     if (status.nextStatuses.length != 0)
     {
-      console.log(status);
+      // console.log(status);
       toReturn = (
         <div className="btn-group">
           <button type="button" className="btn btn-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -55,19 +55,55 @@ class StatusButton extends Component {
 
 class CitRow extends Component {
 
+  createLabelHF(hf) {
+    let label = "HF ";
+    let version = _.findWhere(this.props.listVersions, {version: hf.version, product: hf.product});
+    label += hf.hfNumber + " " + version.label;
+
+    return label;
+  }
+
+  addToHF(hf) {
+    console.log(hf);
+
+    Meteor.call('cits.addToHF', this.props.cit._id, hf._id);
+
+    if (hf.status == 'defined' || hf.status == 'requested') {
+
+    }
+    else {
+      Meteor.call('hfs.setStatus', hf._id, "repro_req");
+    }
+
+  }
+
   render() {
     //console.log(this.props);
-    let version = _.findWhere(this.props.listVersions, {version: this.props.cit.version});
+    let version = _.findWhere(this.props.listVersions, {version: this.props.cit.version, product: this.props.cit.product});
     //console.log(version);
     return (
       <tr>
-        <td><input type="checkbox" /></td>
+        <td></td>
         <td><span className="glyphicon glyphicon-plus"></span></td>
         <td>{this.props.cit._id}</td>
         <td>{version.label}</td>
         <td>{this.props.cit.email}</td>
         <td>{this.props.cit.createdAt.toLocaleString()}</td>
         <td>{this.props.cit.description}</td>
+        <td>
+          {this.props.listHFs.length == 0 ?
+            <label>None</label>
+            :
+            <div className="btn-group">
+              <button type="button" className="btn btn-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Add to
+              </button>
+              <ul className="dropdown-menu dropdown-menu-right">
+                {this.props.listHFs.map((hf) => (<li key={Math.random()}><a href="javascript:void(0)" onClick={ev => this.addToHF(hf)}>{this.createLabelHF(hf)}</a></li>))}
+              </ul>
+            </div>
+          }
+        </td>
       </tr>
     )
   }
@@ -227,26 +263,39 @@ export default class ProdView extends Component {
     )
   }
 
-  renderCITsByHF(hfVer) {
-    var unsCits = [];
-    console.log(hfVer);
-    if ( hfVer == undefined ) {
-      unsCits = _.where(this.props.listCITs, {hf: undefined});
-      hfVer = "Unassigned";
-    }
-    else {
-      unsCits = _.where(this.props.listCITs, {hf: hfVer});
+
+  possibleHFs(cit) {
+    // console.log(cit);
+
+    let possibleHFs = _.filter(this.props.listHFs, function(hf) {
+      return hf.product === cit.product && hf.version === cit.version && hf.status !== "released";
+    });
+    // console.log(possibleHFs);
+
+    return possibleHFs;
+  }
+
+  renderCITsByHF() {
+    var toReturn = [];
+    //process unassigned CITs
+    {
+      let tmpCits = _.where(this.props.listCITs, {hfId: undefined});
+
+      let key = new Date();
+
+      // console.log(tmpCits);
+
+      if (tmpCits.length !== 0) {
+        toReturn = [
+          <tr key={key.getTime()}><th colSpan="7">Unassigned</th></tr>,
+          ...tmpCits.map((cit) => <CitRow key={cit._id } cit={cit} listVersions={this.props.listVersions} listHFs={this.possibleHFs(cit)}/>)
+        ];
+      }
     }
 
-    let key = new Date();
-    console.log(unsCits);
-    var toReturn = [];
-    //if any CIT not included to HF
-    if (unsCits.length !== 0) {
-      toReturn = [
-        <tr key={key.getTime()}><th colSpan="7">{hfVer}</th></tr>,
-        ...unsCits.map((cit) => <CitRow key={cit._id } cit={cit} listVersions={this.props.listVersions}/>)
-      ];
+    //process assigned CITs by HF
+    {
+
     }
 
     return toReturn;
@@ -255,11 +304,6 @@ export default class ProdView extends Component {
   renderCITTab() {
     return (
       <div className="container" id="citList">
-        <div className="row">
-          <button type="button" className="btn btn-info">
-            Add to HF
-          </button>
-        </div>
         <table className="table table-hover">
           <thead>
             <tr>
@@ -283,7 +327,6 @@ export default class ProdView extends Component {
           </thead>
           <tbody>
             {this.renderCITsByHF()}
-            {this.renderCITsByHF("HF9 V7 R2.0")}
           </tbody>
         </table>
       </div>

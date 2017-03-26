@@ -47,9 +47,9 @@ render() {
   }
 }
 
-App.propTypes = {
-  //tasks: PropTypes.array.isRequired,
-};
+// App.propTypes = {
+//   tasks: PropTypes.array.isRequired,
+// };
 
 export default createContainer(({params}) => {
   const currentUser = Meteor.user();
