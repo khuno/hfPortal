@@ -31,7 +31,7 @@ Meteor.methods({
       hfNumber: newHfNumber
     });
   },
-  
+
   'hfs.setStatus'(id, newStatus)
   {
     check(id, String);
@@ -44,7 +44,7 @@ Meteor.methods({
       throw new Meteor.Error('not-permitted');
     }
 
-    hfs.update(id, { $set: {status: newStatus}});
+    hfs.update(id, { $set: {status: newStatus, modifiedAt: new Date()}});
 
   }
 });

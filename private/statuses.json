@@ -3,7 +3,7 @@
   {"value": "requested", "label": "Requested", "nextStatuses": ["produced"]},
   {"value": "produced", "label": "Produced", "nextStatuses": ["start_test","repro_req"]},
   {"value": "repro_req", "label": "Reproduction requested", "nextStatuses": ["produced"]},
-  {"value": "start_test", "label": "Started up/In test", "nextStatuses": ["tested"]},
-  {"value": "tested", "label": "Tested", "nextStatuses": ["released"]},
+  {"value": "start_test", "label": "Started up/In test", "nextStatuses": ["tested","repro_req"]},
+  {"value": "tested", "label": "Tested", "nextStatuses": ["released","repro_req"]},
   {"value": "released", "label": "Released", "nextStatuses": []}
 ]

@@ -70,7 +70,7 @@ export default createContainer(({params}) => {
       currentUser,
       cits: cits.find({}).fetch(),
       listVersions: versions.find({}).fetch(),
-      listHFs: hfs.find({}).fetch(),
+      listHFs: hfs.find({}, {sort: {date_created: -1}}).fetch(),
       listStatuses: statuses.find({}).fetch()
     }
   }

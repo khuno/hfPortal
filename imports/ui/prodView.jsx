@@ -92,7 +92,7 @@ class CitRow extends Component {
         <td>{this.props.cit.description}</td>
         <td>
           {this.props.listHFs.length == 0 ?
-            <label>None</label>
+            null
             :
             <div className="btn-group">
               <button type="button" className="btn btn-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -286,16 +286,34 @@ export default class ProdView extends Component {
       // console.log(tmpCits);
 
       if (tmpCits.length !== 0) {
-        toReturn = [
+        toReturn = _.union(toReturn,[
           <tr key={key.getTime()}><th colSpan="7">Unassigned</th></tr>,
           ...tmpCits.map((cit) => <CitRow key={cit._id } cit={cit} listVersions={this.props.listVersions} listHFs={this.possibleHFs(cit)}/>)
-        ];
+        ]);
       }
     }
 
     //process assigned CITs by HF
     {
 
+      let arrHfs = _.sortBy(this.props.listHFs, function(o){ return -o.modifiedAt;});
+      for (let hf of arrHfs) {
+        console.log(hf);
+        console.log(this.props);
+        let tmpCits = _.where(this.props.listCITs, {hfId: hf._id});
+        let key = new Date();
+
+        // console.log(tmpCits);
+
+        if (tmpCits.length !== 0) {
+          let version = _.findWhere(this.props.listVersions, {version: hf.version, product: hf.product});
+          let label = "HF "+hf.hfNumber+" "+version.label;
+          toReturn = _.union(toReturn,[
+            <tr key={key.getTime()}><th colSpan="7">{label}</th></tr>,
+            ...tmpCits.map((cit) => <CitRow key={cit._id } cit={cit} listVersions={this.props.listVersions} listHFs={[]}/>)
+          ]);
+        }
+      }
     }
 
     return toReturn;
