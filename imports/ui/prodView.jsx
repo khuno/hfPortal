@@ -77,13 +77,19 @@ class CitRow extends Component {
 
   }
 
+  handleOnChange () {
+    console.log(this.props.cit._id);
+
+    this.props.handleCheckboxChange(this.props.cit._id);
+  }
+
   render() {
     //console.log(this.props);
     let version = _.findWhere(this.props.listVersions, {version: this.props.cit.version, product: this.props.cit.product});
     //console.log(version);
     return (
       <tr>
-        <td></td>
+        <td>{this.props.checked !== undefined ? <input type="checkbox" checked={this.props.checked} onChange={ev => this.handleOnChange()}/> : null }</td>
         <td><span className="glyphicon glyphicon-plus"></span></td>
         <td>{this.props.cit._id}</td>
         <td>{version.label}</td>
@@ -249,7 +255,7 @@ export default class ProdView extends Component {
   renderHFTab() {
     return (
       <div className="container" id="hfList">
-        <div className="row">
+        <div className="row btnGrp">
           {this.state.defineHF ? this.renderDefiningForm() : null}
           <div className="col-md-4">
             <button type="button" className="btn btn-info" onClick={this.handleDefineHF.bind(this)} disabled={this.state.buttonHFDisabled}>
@@ -287,8 +293,23 @@ export default class ProdView extends Component {
 
       if (tmpCits.length !== 0) {
         toReturn = _.union(toReturn,[
-          <tr key={key.getTime()}><th colSpan="7">Unassigned</th></tr>,
-          ...tmpCits.map((cit) => <CitRow key={cit._id } cit={cit} listVersions={this.props.listVersions} listHFs={this.possibleHFs(cit)}/>)
+          <tr key={key.getTime()+Math.random()}><th colSpan="8">Unassigned</th></tr>,
+          ...tmpCits.map((cit) => {
+            let hf = (this.state.addCITsToHf ? _.findWhere(this.props.listHFs, {_id: this.state.addCITsToHf.hfId }) : undefined);
+            if (hf !== undefined) {
+              if (cit.version === hf.version && cit.product === hf.product)
+              {
+                return <CitRow key={cit._id } cit={cit} listVersions={this.props.listVersions} listHFs={this.possibleHFs(cit)}
+                                          checked={_.contains(this.state.checkedCITs, cit._id)} handleCheckboxChange={this.toggleCheckbox.bind(this)}/>
+              }
+              else {
+                return <CitRow key={cit._id } cit={cit} listVersions={this.props.listVersions} listHFs={this.possibleHFs(cit)}/>
+              }
+            }
+            else {
+              return <CitRow key={cit._id } cit={cit} listVersions={this.props.listVersions} listHFs={this.possibleHFs(cit)}/>
+            }
+          })
         ]);
       }
     }
@@ -298,8 +319,8 @@ export default class ProdView extends Component {
 
       let arrHfs = _.sortBy(this.props.listHFs, function(o){ return -o.modifiedAt;});
       for (let hf of arrHfs) {
-        console.log(hf);
-        console.log(this.props);
+        // console.log(hf);
+        // console.log(this.props);
         let tmpCits = _.where(this.props.listCITs, {hfId: hf._id});
         let key = new Date();
 
@@ -309,7 +330,7 @@ export default class ProdView extends Component {
           let version = _.findWhere(this.props.listVersions, {version: hf.version, product: hf.product});
           let label = "HF "+hf.hfNumber+" "+version.label;
           toReturn = _.union(toReturn,[
-            <tr key={key.getTime()}><th colSpan="7">{label}</th></tr>,
+            <tr key={key.getTime()+Math.random()}><th colSpan="8">{label}</th></tr>,
             ...tmpCits.map((cit) => <CitRow key={cit._id } cit={cit} listVersions={this.props.listVersions} listHFs={[]}/>)
           ]);
         }
@@ -319,9 +340,83 @@ export default class ProdView extends Component {
     return toReturn;
   }
 
+  toggleCheckbox(cit){
+    let set = new Set(this.state.checkedCITs);
+    if (set.has(cit)) {
+      set.delete(cit);
+      this.setState({checkedCITs: Array.from(set)});
+    } else {
+      set.add(cit);
+      this.setState({checkedCITs: Array.from(set)});
+    }
+  }
+
+  createLabelHF(hf) {
+    let label = "HF ";
+    let version = _.findWhere(this.props.listVersions, {version: hf.version, product: hf.product});
+    label += hf.hfNumber + " " + version.label;
+
+    return label;
+  }
+
+  checkCITs(ev, hf) {
+    let cits = _.where(this.props.listCITs, {version: hf.version, product: hf.product, hfId: undefined});
+    if (cits.length !== 0) {
+      let citsId = cits.map(function(cit) {return cit._id});
+      this.setState({checkedCITs: citsId, addCITsToHf: {hfId :hf._id, label: ev.target.text}});
+    }
+    else {
+      console.log("none cit for this HF");
+    }
+  }
+
+  handleAddtoHF() {
+    let hf = _.findWhere(this.props.listHFs, {_id: this.state.addCITsToHf.hfId});
+    this.state.checkedCITs.forEach(function(citId){
+      Meteor.call('cits.addToHF', citId, hf._id);
+      if (hf.status == 'defined' || hf.status == 'requested') {
+
+      }
+      else {
+        Meteor.call('hfs.setStatus', hf._id, "repro_req");
+      }
+    });
+
+    this.setState({checkedCITs: undefined, addCITsToHf: undefined});
+
+  }
+
+  handleCancelAddtoHF() {
+    this.setState({checkedCITs: undefined, addCITsToHf: undefined});
+  }
+
   renderCITTab() {
     return (
       <div className="container" id="citList">
+        <div className="row btnGrp">
+          {this.props.listHFs.length == 0 ?
+            null
+            :
+            <div className="btn-group">
+              <button type="button" className="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Add to <span className="caret"></span>
+              </button>
+              <ul className="dropdown-menu">
+                {this.props.listHFs.filter(function(hf){return hf.status !== "released"}).map((hf) => (<li key={Math.random()}><a href="javascript:void(0)" onClick={ev => this.checkCITs(ev, hf)}>{this.createLabelHF(hf)}</a></li>))}
+              </ul>
+            </div>
+            }
+           {this.state.addCITsToHf && this.state.checkedCITs.length !== 0 ?
+             <div className="btn-group" role="group">
+               <button type="button" className="btn btn-success" onClick={ev => this.handleAddtoHF()}>
+                 Add to {this.state.addCITsToHf.label} ({this.state.checkedCITs.length} checked)
+               </button>
+               <button type="button" className="btn btn-danger" onClick={ev => this.handleCancelAddtoHF()}>
+                 Cancel
+               </button>
+           </div>
+             : null}
+        </div>
         <table className="table table-hover">
           <thead>
             <tr>
@@ -332,6 +427,7 @@ export default class ProdView extends Component {
               <th>Submitted by</th>
               <th>Submitted date</th>
               <th>Description</th>
+              <th></th>
             </tr>
             <tr>
               <th></th>

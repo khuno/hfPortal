@@ -23,3 +23,7 @@
 .btn-link:hover {
   color: black;
 }
+
+.btnGrp > * {
+  padding: 5px;
+}
