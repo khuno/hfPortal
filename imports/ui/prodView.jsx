@@ -123,9 +123,9 @@ class HFRow extends Component {
         <td><span className="glyphicon glyphicon-plus"></span></td>
         <td>HF {this.props.hf.hfNumber}</td>
         <td>{this.props.hf.product.capitalize()}</td>
-        <td><StatusButton state={this.props.hf.status} listStatuses={this.props.listStatuses} hfId={this.props.hf._id}/>
-            {this.props.hf.status == "requested"?<button type="button" className="btn btn-info">Produce</button>:null}
-            {this.props.hf.status == "repro_req"?<button type="button" className="btn btn-info">Reproduce</button>:null}</td>
+        <td className="statusClmn"><StatusButton state={this.props.hf.status} listStatuses={this.props.listStatuses} hfId={this.props.hf._id}/>
+            {this.props.hf.status == "requested"?<button type="button" className="btn-xs btn-info">Produce</button>:null}
+            {this.props.hf.status == "repro_req"?<button type="button" className="btn-xs btn-info">Reproduce</button>:null}</td>
         <td>{this.props.hf.modifiedAt.toLocaleString()}</td>
       </tr>
     )
