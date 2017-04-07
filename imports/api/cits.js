@@ -14,6 +14,9 @@ Meteor.methods({
       throw new Meteor.Error('not-authorized');
     }
 
+    let highestCIT = cits.find({},{limit: 1,sort: {citNo:-1}}).fetch();
+    let newCITNo = (highestCIT[0]? (highestCIT[0].citNo + 1) : 1);
+
     cits.insert({
       issueNo:     obj.issueNo,
       priority:    obj.priority,
@@ -26,6 +29,7 @@ Meteor.methods({
       components:  obj.components,
       mailsTo:     obj.mailsTo,
       createdAt: new Date(),
+      citNo: newCITNo,
       owner: this.userId,
       email: Meteor.users.findOne(this.userId).emails[0].address,
     });

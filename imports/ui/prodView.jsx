@@ -91,12 +91,13 @@ class CitRow extends Component {
       <tr>
         <td>{this.props.checked !== undefined ? <input type="checkbox" checked={this.props.checked} onChange={ev => this.handleOnChange()}/> : null }</td>
         <td><span className="glyphicon glyphicon-plus"></span></td>
-        <td>{this.props.cit._id}</td>
+        <td>CIT-{this.props.cit.citNo}</td>
         <td>{version.label}</td>
+        <td>{this.props.cit.components}</td>
         <td>{this.props.cit.email}</td>
         <td>{this.props.cit.createdAt.toLocaleString()}</td>
         <td>{this.props.cit.description}</td>
-        <td>
+        {/*<td>
           {this.props.listHFs.length == 0 ?
             null
             :
@@ -109,7 +110,7 @@ class CitRow extends Component {
               </ul>
             </div>
           }
-        </td>
+        </td>*/}
       </tr>
     )
   }
@@ -122,7 +123,9 @@ class HFRow extends Component {
         <td><span className="glyphicon glyphicon-plus"></span></td>
         <td>HF {this.props.hf.hfNumber}</td>
         <td>{this.props.hf.product.capitalize()}</td>
-        <td><StatusButton state={this.props.hf.status} listStatuses={this.props.listStatuses} hfId={this.props.hf._id}/></td>
+        <td><StatusButton state={this.props.hf.status} listStatuses={this.props.listStatuses} hfId={this.props.hf._id}/>
+            {this.props.hf.status == "requested"?<button type="button" className="btn btn-info">Produce</button>:null}
+            {this.props.hf.status == "repro_req"?<button type="button" className="btn btn-info">Reproduce</button>:null}</td>
         <td>{this.props.hf.modifiedAt.toLocaleString()}</td>
       </tr>
     )
@@ -424,6 +427,7 @@ export default class ProdView extends Component {
               <th></th>
               <th>CIT number</th>
               <th>Product</th>
+              <th>Components</th>
               <th>Submitted by</th>
               <th>Submitted date</th>
               <th>Description</th>

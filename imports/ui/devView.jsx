@@ -42,7 +42,7 @@ export default class DevView extends Component {
           deactivable: true,
           ticketNo: "",
           comment: "",
-          selectedMails: "",
+          selectedMails: listMails,
           additionalMails: "",
           selectedVersions: []
         }
@@ -99,6 +99,7 @@ export default class DevView extends Component {
    arrayVersions = this.state.selectedVersions;
    console.log(arrayVersions);
    //foreach version separated CIT
+   let selectedMails = this.state.selectedMails.map(function(mail){return mail.value}).join();
    for (i = 0; i < arrayVersions.length; i++)
    {
      var submitedCIT = {
@@ -111,7 +112,7 @@ export default class DevView extends Component {
        version:     arrayVersions[i].version,
        product:     arrayVersions[i].product,
        components:  this.state.selectedComponents,
-       mailsTo:     this.state.selectedMails +(this.state.additionalMails===""? "" : (","+ this.state.additionalMails)),
+       mailsTo:     selectedMails +(this.state.additionalMails===""? "" : (","+ this.state.additionalMails)),
 
      }
 
@@ -159,8 +160,6 @@ export default class DevView extends Component {
              placeholder="Select versions..."
              backspaceToRemoveMessage=''
            />
-         <input type="multiSelectInput" className="form-control" id="componentsList"
-                           value={this.state.selectedVersions} placeholder="Assistant..." />
        </div>
        <div className="form-group">
          <label htmlFor="componentsList">Components</label>
@@ -174,8 +173,6 @@ export default class DevView extends Component {
              placeholder="Select components..."
              backspaceToRemoveMessage=''
            />
-         <input type="multiSelectInput" className="form-control" id="componentsList"
-                           value={this.state.selectedComponents} placeholder="AS..." />
        </div>
        <div className="form-group">
          <label htmlFor="ticketNo">GVS ticket number</label>
@@ -210,7 +207,6 @@ export default class DevView extends Component {
              placeholder="Select mail lists..."
              backspaceToRemoveMessage=''
            />
-         <input type="mailList" className="form-control" id="mailLIst" value={this.state.selectedMails} />
        </div>
 
        <div className="form-group">
@@ -226,7 +222,6 @@ export default class DevView extends Component {
            backspaceToRemoveMessage=''
            noResultsText=''
          />
-         <input type="email" className="form-control" id="additionalMail" value={this.state.additionalMails} placeholder="unify@unify.com" />
        </div>
      </div>
    )
