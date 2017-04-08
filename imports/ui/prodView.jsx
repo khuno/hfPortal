@@ -16,8 +16,8 @@ String.prototype.capitalize = function() {
 class StatusButton extends Component {
 
   changeStatus(toStatus) {
-    console.log(this.props.hfId,toStatus);
-    Meteor.call('hfs.setStatus', this.props.hfId, toStatus);
+    console.log(this.props.hf._id,toStatus);
+    Meteor.call('hfs.setStatus', this.props.hf, toStatus);
   }
 
   renderNextStatuses(currentStatus) {
@@ -72,7 +72,7 @@ class CitRow extends Component {
 
     }
     else {
-      Meteor.call('hfs.setStatus', hf._id, "repro_req");
+      Meteor.call('hfs.setStatus', hf, "repro_req");
     }
 
   }
@@ -123,7 +123,7 @@ class HFRow extends Component {
         <td><span className="glyphicon glyphicon-plus"></span></td>
         <td>HF {this.props.hf.hfNumber}</td>
         <td>{this.props.hf.product.capitalize()}</td>
-        <td className="statusClmn"><StatusButton state={this.props.hf.status} listStatuses={this.props.listStatuses} hfId={this.props.hf._id}/>
+        <td className="statusClmn"><StatusButton state={this.props.hf.status} listStatuses={this.props.listStatuses} hf={this.props.hf}/>
             {this.props.hf.status == "requested"?<button type="button" className="btn-xs btn-info">Produce</button>:null}
             {this.props.hf.status == "repro_req"?<button type="button" className="btn-xs btn-info">Reproduce</button>:null}</td>
         <td>{this.props.hf.modifiedAt.toLocaleString()}</td>
@@ -381,7 +381,7 @@ export default class ProdView extends Component {
 
       }
       else {
-        Meteor.call('hfs.setStatus', hf._id, "repro_req");
+        Meteor.call('hfs.setStatus', hf, "repro_req");
       }
     });
 

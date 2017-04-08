@@ -2,6 +2,7 @@ import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
 import { Roles } from 'meteor/alanning:roles';
+import { Email } from 'meteor/email';
 
 export const cits = new Mongo.Collection('cits');
 
@@ -33,6 +34,17 @@ Meteor.methods({
       owner: this.userId,
       email: Meteor.users.findOne(this.userId).emails[0].address,
     });
+    if (Meteor.isServer) {
+      let txt = "CIT summary: \nIssue number:"+obj.issueNo;
+      let sbj = "New CIT was submitted (CIT-"+newCITNo+")";
+      //console.log(Email);
+      Email.send({
+        to: "Sergii Khunovych <sergii.khunovych@ixperta.com>",
+        from: "<4km-hfportal@unify.com>",
+        subject: sbj,
+        text: txt
+      });
+    }
   },
 
   'cits.addToHF'(id, hfId)

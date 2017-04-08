@@ -2,6 +2,8 @@ import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
 import { Roles } from 'meteor/alanning:roles';
+import {versions} from './versions.js';
+import {statuses} from './statuses.js';
 
 export const hfs = new Mongo.Collection('hfs');
 
@@ -30,11 +32,22 @@ Meteor.methods({
       status: "defined",
       hfNumber: newHfNumber
     });
+    if (Meteor.isServer) {
+      let sbj = "New HF was defined(HF "+newHfNumber+" "+ver.label+")";
+      let txt = "Hello all,\n"+sbj;
+      //console.log(Email);
+      Email.send({
+        to: "Sergii Khunovych <sergii.khunovych@ixperta.com>",
+        from: "<4km-hfportal@unify.com>",
+        subject: sbj,
+        text: txt
+      });
+    }
   },
 
-  'hfs.setStatus'(id, newStatus)
+  'hfs.setStatus'(hf, newStatus)
   {
-    check(id, String);
+    check(hf, Object);
     check(newStatus, String);
 
     if(! this.userId) {
@@ -44,7 +57,20 @@ Meteor.methods({
       throw new Meteor.Error('not-permitted');
     }
 
-    hfs.update(id, { $set: {status: newStatus, modifiedAt: new Date()}});
+    hfs.update(hf._id, { $set: {status: newStatus, modifiedAt: new Date()}});
 
+    if (Meteor.isServer) {
+      let version = versions.findOne({product: hf.product, version: hf.version});
+      let status = statuses.findOne({value: newStatus});
+      let sbj = "HF status changed";
+      let txt = "Hello all,\n"+"Status of HF "+hf.hfNumber+" "+version.label+" changed to "+status.label+".";
+      //console.log(Email);
+      Email.send({
+        to: "Sergii Khunovych <sergii.khunovych@ixperta.com>",
+        from: "<4km-hfportal@unify.com>",
+        subject: sbj,
+        text: txt
+      });
+    }
   }
 });
