@@ -44,7 +44,9 @@ export default class DevView extends Component {
           comment: "",
           selectedMails: listMails,
           additionalMails: "",
-          selectedVersions: []
+          selectedVersions: [],
+          description: "",
+          priority: ""
         }
     return initState;
   }
@@ -59,6 +61,18 @@ export default class DevView extends Component {
 
  onIssueNoChange(ev) {
    this.setState({issueNo: ev.target.value});
+ }
+
+ onIssueNoBlur(ev) {
+   let _response = Meteor.call('jira.getIssue', ev.target.value, {returnStubValue: true}, function(err, response){
+     if(err) {
+       console.log(err);
+     }
+     else {
+       console.log(response);
+       this.setState(response);
+     }
+   }.bind(this));
  }
 
  onticketNoChange(ev) {
@@ -131,16 +145,16 @@ export default class DevView extends Component {
    return (
      <div className="row">
        <div className="form-group">
-         <label htmlFor="issueNo">Issue/MR number</label>
-         <input type="issue" className="form-control" id="issueNo" value={this.state.issueNo} onChange={ev => this.onIssueNoChange(ev)} placeholder="MR/OSFOUR..." />
+         <label htmlFor="issueNo">Issue number</label>
+         <input type="issue" className="form-control" id="issueNo" value={this.state.issueNo} onChange={ev => this.onIssueNoChange(ev)} onBlur={ev => this.onIssueNoBlur(ev)} placeholder="OSFOURK-..." />
        </div>
        <div className="form-group">
          <label htmlFor="prior">Priority</label>
-         <input type="priority" className="form-control" id="priority" value={this.props.priority} placeholder="P4" readOnly />
+         <input type="priority" className="form-control" id="priority" value={this.state.priority} placeholder="P4"  />
        </div>
        <div className="form-group">
          <label>Description</label>
-         <textarea name="Description" className="form-control" value={this.props.description} rows="8" cols="40" readOnly></textarea>
+         <textarea name="Description" className="form-control" value={this.state.description} rows="2" cols="40" ></textarea>
        </div>
      </div>
    )

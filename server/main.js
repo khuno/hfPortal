@@ -1,6 +1,7 @@
 import { Roles } from 'meteor/alanning:roles';
 import '../imports/api/cits.js';
 import '../imports/api/hfs.js';
+import '../imports/api/jira.js'
 import {versions} from '../imports/api/versions.js';
 import {statuses} from '../imports/api/statuses.js';
 
