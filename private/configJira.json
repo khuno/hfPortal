@@ -1,0 +1,9 @@
+{
+  "protocol": "https",
+  "host": "yourjira.com",
+  "port": "443",
+  "user": "user",
+  "password": "password",
+  "apiVer": "2",
+  "strictSSL": false
+}
