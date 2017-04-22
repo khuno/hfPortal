@@ -37,7 +37,7 @@ render() {
     return (
       <div className="container">
           {this.renderHeader()}
-          {(this.props.currentUser && Roles.userIsInRole(this.props.currentUser._id, ['developer'])) ? <DevView myCITs={this.props.cits} listVersions={this.props.listVersions} /> : null}
+          {(this.props.currentUser && Roles.userIsInRole(this.props.currentUser._id, ['developer'])) ? <DevView myCITs={this.props.cits} listVersions={this.props.listVersions} listHFs={this.props.listHFs}/> : null}
           {(this.props.currentUser && Roles.userIsInRole(this.props.currentUser._id, ['production'])) ?
               <ProdView listCITs={this.props.cits} listVersions={this.props.listVersions} listHFs={this.props.listHFs}
                         arrVersions={_.keys(_.countBy(this.props.listVersions, function(ver){ return ver.version; }))}
@@ -61,6 +61,7 @@ export default createContainer(({params}) => {
       description: "asd",
       currentUser,
       cits: cits.find({owner: currentUser._id}).fetch(),
+      listHFs: hfs.find({}, {sort: {date_created: -1}}).fetch(),
       listVersions: versions.find({}).fetch()
     }
   }

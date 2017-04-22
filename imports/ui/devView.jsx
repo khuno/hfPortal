@@ -27,6 +27,23 @@ const TabsDev = {
     listTab : 1
 }
 
+class CitRow extends Component {
+  render() {
+    let version = _.findWhere(this.props.listVersions, {version: this.props.cit.version, product: this.props.cit.product});
+    return (
+      <tr>
+        <td><span className="glyphicon glyphicon-plus"></span></td>
+        <td>CIT-{this.props.cit.citNo}</td>
+        <td>{version.label}</td>
+        <td>{this.props.cit.components}</td>
+        <td>{this.props.cit.email}</td>
+        <td>{this.props.cit.createdAt.toLocaleString()}</td>
+        <td>{this.props.cit.description}</td>
+      </tr>
+    )
+  }
+}
+
 export default class DevView extends Component {
 
   constructor() {
@@ -246,7 +263,7 @@ export default class DevView extends Component {
              <li className={(this.state.activeTab == TabsDev.addTab ? "active" : "")}>
                <a href="javascript:void(0)"  onClick={ev => this.onTabSelected(ev, TabsDev.addTab)}>Add CIT</a></li>
              <li className={(this.state.activeTab == TabsDev.listTab ? "active" : "")}>
-               <a href="javascript:void(0)" onClick={ev => this.onTabSelected(ev, TabsDev.listTab)}>List CITs</a></li>
+               <a href="javascript:void(0)" onClick={ev => this.onTabSelected(ev, TabsDev.listTab)}>My CITs</a></li>
            </ul>;
  }
 
@@ -262,16 +279,78 @@ export default class DevView extends Component {
    )
  }
 
- /*renderDeveloperUser() {
-   return (
-     {this.renderTabs()}
-     this.state.activeTab == TabsDev.addTab ? this.renderAddTab() : this.renderListTab();
-   )
- }*/
+ renderCITsByHF() {
+   var toReturn = [];
+   //process unassigned CITs
+   {
+     let tmpCits = _.where(this.props.myCITs, {hfId: undefined});
+
+     let key = new Date();
+
+     // console.log(tmpCits);
+
+     if (tmpCits.length !== 0) {
+       toReturn = _.union(toReturn,[
+         <tr key={key.getTime()+Math.random()}><th colSpan="8">Unassigned</th></tr>,
+         ...tmpCits.map((cit) => {
+               return <CitRow key={cit._id } cit={cit} listVersions={this.props.listVersions} />
+           })
+       ]);
+     }
+   }
+
+   //process assigned CITs by HF
+   {
+
+     let arrHfs = _.sortBy(this.props.listHFs, function(o){ return -o.modifiedAt;});
+     for (let hf of arrHfs) {
+       let tmpCits = _.where(this.props.myCITs, {hfId: hf._id});
+       let key = new Date();
+
+       if (tmpCits.length !== 0) {
+         let version = _.findWhere(this.props.listVersions, {version: hf.version, product: hf.product});
+         let label = "HF "+hf.hfNumber+" "+version.label;
+         toReturn = _.union(toReturn,[
+           <tr key={key.getTime()+Math.random()}><th colSpan="8">{label}</th></tr>,
+           ...tmpCits.map((cit) => <CitRow key={cit._id } cit={cit} listVersions={this.props.listVersions}/>)
+         ]);
+       }
+     }
+   }
+
+   return toReturn;
+ }
 
  renderListTab() {
    return (
-     <div className="jumbotron"> {JSON.stringify(this.props.myCITs)} </div>
+     <div className="container">
+       <table className="table table-hover">
+         <thead>
+           <tr>
+             <th></th>
+             <th>CIT number</th>
+             <th>Product</th>
+             <th>Components</th>
+             <th>Submitted by</th>
+             <th>Submitted date</th>
+             <th>Description</th>
+             <th></th>
+           </tr>
+           <tr>
+             <th></th>
+             <th></th>
+             <th><input type="text"/></th>
+             <th><input type="text"/></th>
+             <th><input type="text"/></th>
+             <th><input type="text"/></th>
+             <th><input type="text"/></th>
+           </tr>
+         </thead>
+         <tbody>
+           {this.renderCITsByHF()}
+         </tbody>
+       </table>
+     </div>
    )
  }
 
