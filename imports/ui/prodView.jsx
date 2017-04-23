@@ -117,6 +117,10 @@ class CitRow extends Component {
 }
 
 class HFRow extends Component {
+  handleProduceClick() {
+    this.props.produce(this.props.hf._id);
+  }
+
   render() {
     return (
       <tr>
@@ -124,9 +128,13 @@ class HFRow extends Component {
         <td>HF {this.props.hf.hfNumber}</td>
         <td>{this.props.hf.product.capitalize()}</td>
         <td className="statusClmn"><StatusButton state={this.props.hf.status} listStatuses={this.props.listStatuses} hf={this.props.hf}/>
-            {this.props.hf.status == "requested"?<button type="button" className="btn-xs btn-info">Produce</button>:null}
-            {this.props.hf.status == "repro_req"?<button type="button" className="btn-xs btn-info">Reproduce</button>:null}</td>
+            {this.props.hf.status === "requested"?<button type="button" className="btn-xs btn-info" data-toggle="modal" data-target="#componetDialog" onClick={ev => this.handleProduceClick()}>Produce</button>:null}
+            {this.props.hf.status === "repro_req"?<button type="button" className="btn-xs btn-info">Reproduce</button>:null}</td>
         <td>{this.props.hf.modifiedAt.toLocaleString()}</td>
+        <td>{this.props.hf.status === "requested" || this.props.hf.status === "defined"?
+          <button type="button" className="btn-xs btn-error"><span className="glyphicon glyphicon-remove" /></button>
+          :null}
+        </td>
       </tr>
     )
   }
@@ -145,6 +153,7 @@ export default class ProdView extends Component {
           defineHF: false,
           selectedVersion: "",
           buttonHFDisabled: false,
+          componentsToProduce: []
         }
     return initState;
   }
@@ -187,12 +196,22 @@ export default class ProdView extends Component {
     this.setState({ selectedVersion: val, buttonHFDisabled: !this.state.buttonHFDisabled});
   }
 
+  handleProduceButton(hfId) {
+    let tmp = _.where(this.props.listCITs, {hfId: hfId});
+    let componetList = [];
+    for (cit of tmp) {
+      componetList = _.union(componetList, cit.components.split(','));
+    }
+    console.log(componetList);
+    this.setState({componentsToProduce: componetList});
+  }
+
   renderTabs() {
       return <ul className="nav nav-tabs tab">
               <li className={(this.state.activeTab == TabsDev.hfTab ? "active" : "")}>
-                <a href="javascript:void(0)"  onClick={ev => this.onTabSelected(ev, TabsDev.hfTab)}>HF List</a></li>
+                <a href="javascript:void(0)"  onClick={ev => this.onTabSelected(ev, TabsDev.hfTab)}>HotFixes</a></li>
               <li className={(this.state.activeTab == TabsDev.citTab ? "active" : "")}>
-                <a href="javascript:void(0)" onClick={ev => this.onTabSelected(ev, TabsDev.citTab)}>List of all CITs</a></li>
+                <a href="javascript:void(0)" onClick={ev => this.onTabSelected(ev, TabsDev.citTab)}>CITs</a></li>
             </ul>;
   }
 
@@ -205,8 +224,8 @@ export default class ProdView extends Component {
       if ( tmpHFs.length > 0 )
       {
         toReturn = _.union(toReturn,[
-          <tr key={key.getTime()+Math.random()}><th colSpan="5">{ver}</th></tr>,
-          ...tmpHFs.map((hf) => <HFRow key={hf._id } hf={hf} listStatuses={this.props.listStatuses}/>)
+          <tr key={key.getTime()+Math.random()}><th colSpan="6">{ver}</th></tr>,
+          ...tmpHFs.map((hf) => <HFRow key={hf._id } hf={hf} listStatuses={this.props.listStatuses} produce={this.handleProduceButton.bind(this)}/>)
         ]);
       }
     }
@@ -224,6 +243,7 @@ export default class ProdView extends Component {
             <th>Product</th>
             <th>Status</th>
             <th>Last modify</th>
+            <th/>
           </tr>
           <tr>
             <th></th>
@@ -231,6 +251,7 @@ export default class ProdView extends Component {
             <th><input type="text"/></th>
             <th><input type="text"/></th>
             <th><input type="text"/></th>
+            <th/>
           </tr>
         </thead>
         <tbody>
@@ -255,9 +276,29 @@ export default class ProdView extends Component {
     )
   }
 
+  renderDialog() {
+    return (
+      <div className="modal fade" id="componetDialog" role="dialog">
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-body">
+              <h4 className="modal-title">Components list:</h4>
+              <p>{this.state.componentsToProduce.length === 0 ? "No Componets to produce" : this.state.componentsToProduce.join(' ')}</p>
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    )
+  }
+
   renderHFTab() {
     return (
       <div className="container" id="hfList">
+        {this.renderDialog()}
         <div className="row btnGrp">
           {this.state.defineHF ? this.renderDefiningForm() : null}
           <div className="col-md-4">

@@ -72,5 +72,26 @@ Meteor.methods({
         text: txt
       });
     }
+  },
+
+  'hfs.deleteHF'(hf)
+  {
+    check(hf, Object);
+
+    if(! this.userId) {
+      throw new Meteor.Error('not-authorized');
+    }
+    if(! Roles.userIsInRole(this.userId, ['production'])) {
+      throw new Meteor.Error('not-permitted');
+    }
+
+    let highestHF = hfs.find({version: ver.version, product: ver.product},{limit: 1,sort: {hfNumber:-1}}).fetch();
+    if(highestHF === hf.hfNumber)
+    {
+      console.log("we can delete");
+    }
+    else {
+      console.log("NO");
+    }
   }
 });
