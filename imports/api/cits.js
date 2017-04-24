@@ -60,6 +60,21 @@ Meteor.methods({
     }
 
     cits.update(id, {$set: {"hfId": hfId}});
+  },
+
+  'cits.setTest'(id, testResult)
+  {
+    check(id, String);
+    check(testResult, String);
+
+    if(! this.userId) {
+      throw new Meteor.Error('not-authorized');
+    }
+    if(! Roles.userIsInRole(this.userId, ['gvs', 'tester', 'admin'])) {
+      throw new Meteor.Error('not-permitted');
+    }
+
+    cits.update(id, {$set: {"test": testResult, "testedBy": Meteor.users.findOne(this.userId).emails[0].address}});
   }
 
 });

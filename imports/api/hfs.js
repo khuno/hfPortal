@@ -53,7 +53,7 @@ Meteor.methods({
     if(! this.userId) {
       throw new Meteor.Error('not-authorized');
     }
-    if(! Roles.userIsInRole(this.userId, ['production'])) {
+    if(! Roles.userIsInRole(this.userId, ['production', 'gvs', 'tester'])) {
       throw new Meteor.Error('not-permitted');
     }
 

@@ -36,7 +36,7 @@ class App extends Component {
 
 render() {
     return (
-      <div className="container">
+      <div>
           {this.renderHeader()}
           {(this.props.currentUser && Roles.userIsInRole(this.props.currentUser._id, ['developer'])) ? <DevView myCITs={this.props.cits} listVersions={this.props.listVersions} listHFs={this.props.listHFs}/> : null}
           {(this.props.currentUser && Roles.userIsInRole(this.props.currentUser._id, ['gvs', 'tester'])) ?

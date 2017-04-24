@@ -8,6 +8,10 @@ const TabsDev = {
     hfTab : 1
 }
 
+String.prototype.capitalize = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+}
+
 class HFRow extends Component {
   render() {
     var status = _.findWhere(this.props.listStatuses, {value: this.props.hf.status});
@@ -25,61 +29,37 @@ class HFRow extends Component {
 
 class CitRow extends Component {
 
-  createLabelHF(hf) {
-    let label = "HF ";
-    let version = _.findWhere(this.props.listVersions, {version: hf.version, product: hf.product});
-    label += hf.hfNumber + " " + version.label;
-
-    return label;
-  }
-
-  addToHF(hf) {
-    console.log(hf);
-
-    Meteor.call('cits.addToHF', this.props.cit._id, hf._id);
-
-    if (hf.status == 'defined' || hf.status == 'requested') {
-
+  handleTestResult(result) {
+    if (result === 1) {
+      Meteor.call('test.setTestResult', this.props.cit._id, "passed", this.props.cit.hfId);
     }
-    else {
-      Meteor.call('hfs.setStatus', hf, "repro_req");
+    else if (result === 0) {
+      Meteor.call('test.setTestResult', this.props.cit._id, "failed", this.props.cit.hfId);
     }
-
-  }
-
-  handleOnChange () {
-    console.log(this.props.cit._id);
-
-    this.props.handleCheckboxChange(this.props.cit._id);
   }
 
   render() {
-    //console.log(this.props);
-    let version = _.findWhere(this.props.listVersions, {version: this.props.cit.version, product: this.props.cit.product});
-    //console.log(version);
     return (
       <tr>
-        <td>{this.props.checked !== undefined ? <input type="checkbox" checked={this.props.checked} onChange={ev => this.handleOnChange()}/> : null }</td>
+        <td></td>
         <td><span className="glyphicon glyphicon-plus"></span></td>
         <td>CIT-{this.props.cit.citNo}</td>
         <td>{this.props.cit.components}</td>
         <td>{this.props.cit.email}</td>
         <td>{this.props.cit.createdAt.toLocaleString()}</td>
         <td>{this.props.cit.description}</td>
-        {/*<td>
-          {this.props.listHFs.length == 0 ?
-            null
-            :
+        <td>{this.props.cit.testedBy ? this.props.cit.testedBy : "Waiting for test"}</td>
+        <td>
             <div className="btn-group">
               <button type="button" className="btn btn-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Add to
+                {this.props.cit.test ? this.props.cit.test.capitalize() : 'Test...'}
               </button>
               <ul className="dropdown-menu dropdown-menu-right">
-                {this.props.listHFs.map((hf) => (<li key={Math.random()}><a href="javascript:void(0)" onClick={ev => this.addToHF(hf)}>{this.createLabelHF(hf)}</a></li>))}
+                <li><a href="javascript:void(0)" onClick={ev => this.handleTestResult(1)}>Passed</a></li>
+                <li><a href="javascript:void(0)" onClick={ev => this.handleTestResult(0)}>Failed</a></li>
               </ul>
             </div>
-          }
-        </td>*/}
+        </td>
       </tr>
     )
   }
@@ -133,8 +113,8 @@ export default class TestView extends Component {
           let version = _.findWhere(this.props.listVersions, {version: hf.version, product: hf.product});
           let label = "HF "+hf.hfNumber+" "+version.label+ " ("+status.label+")";
           toReturn = _.union(toReturn,[
-            <tr key={key.getTime()+Math.random()}><th colSpan="8">{label}</th></tr>,
-              ...tmpCits.map((cit) => <CitRow key={cit._id } cit={cit} listVersions={this.props.listVersions} listHFs={[]}/>)
+            <tr key={key.getTime()+Math.random()}><th colSpan="9">{label}</th></tr>,
+              ...tmpCits.map((cit) => <CitRow key={cit._id } cit={cit} listVersions={this.props.listVersions} />)
             ]);
           }
       }
@@ -155,7 +135,8 @@ export default class TestView extends Component {
             <th>Submitted by</th>
             <th>Submitted date</th>
             <th>Description</th>
-            <th></th>
+            <th>Tested By</th>
+            <th>Test Result</th>
           </tr>
           <tr>
             <th></th>
@@ -165,6 +146,7 @@ export default class TestView extends Component {
             <th><input type="text"/></th>
             <th><input type="text"/></th>
             <th><input type="text"/></th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
