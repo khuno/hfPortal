@@ -4,14 +4,6 @@ import '../api/cits.js';
 
 import 'react-select/dist/react-select.css';
 
-var listComponents = [
-    { value: 'swt', label: 'ASswt' },
-    { value: 'swa', label: 'ASswa' },
-    { value: 'fm', label: 'ASfm' },
-    { value: 'logm', label: 'ASlogm' },
-    { value: 'hg3550m', label: 'AShg3550m' },
-    { value: 'ipsm', label: 'ASipsm' }
-];
 
 var listMails = [
     { value: 'development', label: 'Development' },
@@ -59,7 +51,7 @@ export default class DevView extends Component {
           deactivable: true,
           ticketNo: "",
           comment: "",
-          selectedMails: listMails,
+          selectedMails: [],
           additionalMails: "",
           selectedVersions: [],
           description: "",
@@ -68,11 +60,11 @@ export default class DevView extends Component {
     return initState;
   }
 
-  componentWillReceiveProps(nextProps){
-
+  componentWillMount() {
+    this.setState({selectedMails: this.props.listMails});
   }
 
-  onTabSelected(ev, selectedTab) {
+    onTabSelected(ev, selectedTab) {
           this.setState({ activeTab: selectedTab });
       }
 
@@ -197,7 +189,7 @@ export default class DevView extends Component {
            <Select
              name="form-field-name"
              value={this.state.selectedComponents}
-             options={listComponents}
+             options={this.props.listComponents}
              onChange={val => this.handleAddComponents(val)}
              multi
              simpleValue
@@ -230,11 +222,10 @@ export default class DevView extends Component {
            <Select
              name="form-field-name"
              value={this.state.selectedMails}
-             options={listMails}
+             options={this.props.listMails}
              onChange={val => this.handleAddMailLists(val)}
              multi
 
-             simpleValue
              placeholder="Select mail lists..."
              backspaceToRemoveMessage=''
            />

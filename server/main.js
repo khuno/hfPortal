@@ -5,6 +5,8 @@ import '../imports/api/jira.js';
 import '../imports/api/test.js';
 import {versions} from '../imports/api/versions.js';
 import {statuses} from '../imports/api/statuses.js';
+import {components} from '../imports/api/components.js';
+import {mail_list} from '../imports/api/mail_list.js';
 
 Meteor.startup(function () {
   //initial creating of versions collection
@@ -38,6 +40,22 @@ Meteor.startup(function () {
   if (statuses.find().count() === 0) {
     JSON.parse(Assets.getText('statuses.json')).forEach(function (status) {
       statuses.insert(status);
+      //Meteor.call('statuses.insert', status);
+    });
+  }
+
+  //initial creating of components collection
+  if (components.find().count() === 0) {
+    JSON.parse(Assets.getText('components.json')).forEach(function (component) {
+      components.insert(component);
+      //Meteor.call('statuses.insert', status);
+    });
+  }
+
+  //initial creating of mail_list collection
+  if (mail_list.find().count() === 0) {
+    JSON.parse(Assets.getText('mail_list.json')).forEach(function (mail) {
+      mail_list.insert(mail);
       //Meteor.call('statuses.insert', status);
     });
   }

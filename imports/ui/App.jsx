@@ -9,7 +9,8 @@ import { cits } from '../api/cits.js';
 import { versions } from '../api/versions.js';
 import { hfs } from '../api/hfs.js';
 import { statuses } from '../api/statuses.js';
-
+import { components } from '../api/components.js';
+import { mail_list } from '../api/mail_list.js';
 
 
 
@@ -38,7 +39,9 @@ render() {
     return (
       <div>
           {this.renderHeader()}
-          {(this.props.currentUser && Roles.userIsInRole(this.props.currentUser._id, ['developer'])) ? <DevView myCITs={this.props.cits} listVersions={this.props.listVersions} listHFs={this.props.listHFs}/> : null}
+          {(this.props.currentUser && Roles.userIsInRole(this.props.currentUser._id, ['developer'])) ?
+              <DevView myCITs={this.props.cits} listComponents={this.props.listComponents} listMails={this.props.listMails} 
+                       listVersions={this.props.listVersions} listHFs={this.props.listHFs}/> : null}
           {(this.props.currentUser && Roles.userIsInRole(this.props.currentUser._id, ['gvs', 'tester'])) ?
               <TestView listCITs={this.props.cits} listVersions={this.props.listVersions} listHFs={this.props.listHFs}
                     arrVersions={_.keys(_.countBy(this.props.listVersions, function(ver){ return ver.version; }))}
@@ -63,16 +66,18 @@ export default createContainer(({params}) => {
   {
     return {
       currentUser,
-      cits: cits.find({owner: currentUser._id}).fetch(),
+      cits: cits.find({owner: currentUser._id}, {sort: {date_created: -1}}).fetch(),
       listHFs: hfs.find({}, {sort: {date_created: -1}}).fetch(),
-      listVersions: versions.find({}).fetch()
+      listVersions: versions.find({}).fetch(),
+      listComponents: components.find({}).fetch(),
+      listMails: mail_list.find({}).fetch()
     }
   }
   else if (currentUser && Roles.userIsInRole(currentUser._id, ['production','gvs']))
   {
     return {
       currentUser,
-      cits: cits.find({}).fetch(),
+      cits: cits.find({}, {sort: {date_created: -1}}).fetch(),
       listVersions: versions.find({}).fetch(),
       listHFs: hfs.find({}, {sort: {date_created: -1}}).fetch(),
       listStatuses: statuses.find({}).fetch()
