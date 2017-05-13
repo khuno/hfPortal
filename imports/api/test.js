@@ -19,9 +19,6 @@ Meteor.methods({
       throw new Meteor.Error('not-permitted');
     }
 
-    console.log(citId);
-    console.log(testResult);
-    console.log(hfId);
     Meteor.call('cits.setTest', citId, testResult);
     let hf = hfs.findOne(hfId);
     if (hf.status === "produced")

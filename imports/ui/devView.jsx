@@ -135,8 +135,8 @@ export default class DevView extends Component {
    {
      var submitedCIT = {
        issueNo:     this.state.issueNo,
-       priority:    this.props.priority,
-       description: this.props.description,
+       priority:    this.state.priority,
+       description: this.state.description,
        ticketNo:    this.state.ticketNo,
        comment:     this.state.comment,
        deactivable: this.state.deactivable,
