@@ -323,7 +323,6 @@ export default class DevView extends Component {
 
  renderListTab() {
    return (
-     <div className="container">
        <table className="table table-hover">
          <thead>
            <tr>
@@ -336,7 +335,7 @@ export default class DevView extends Component {
              <th>Description</th>
              <th></th>
            </tr>
-           <tr>
+           {/*<tr>
              <th></th>
              <th></th>
              <th><input type="text"/></th>
@@ -344,13 +343,12 @@ export default class DevView extends Component {
              <th><input type="text"/></th>
              <th><input type="text"/></th>
              <th><input type="text"/></th>
-           </tr>
+           </tr>*/}
          </thead>
          <tbody>
            {this.renderCITsByHF()}
          </tbody>
        </table>
-     </div>
    )
  }
 

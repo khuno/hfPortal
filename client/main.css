@@ -24,11 +24,14 @@
   color: black;
 }
 
+.btnGrp {
+  border-bottom: none!important
+}
 .btnGrp > * {
   padding: 5px;
 }
 
-td {
+td, thead>tr>th {
   text-align:center;
   vertical-align:middle;
 }

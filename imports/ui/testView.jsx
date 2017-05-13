@@ -48,7 +48,7 @@ class CitRow extends Component {
         <td>{this.props.cit.email}</td>
         <td>{this.props.cit.createdAt.toLocaleString()}</td>
         <td>{this.props.cit.description}</td>
-        <td>{this.props.cit.testedBy ? this.props.cit.testedBy : "Waiting for test"}</td>
+        <td>{this.props.cit.testedBy ? this.props.cit.testedBy : ""}</td>
         <td>
             <div className="btn-group">
               <button type="button" className="btn btn-link dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -138,7 +138,7 @@ export default class TestView extends Component {
             <th>Tested By</th>
             <th>Test Result</th>
           </tr>
-          <tr>
+          {/*<tr>
             <th></th>
             <th></th>
             <th><input type="text"/></th>
@@ -147,7 +147,7 @@ export default class TestView extends Component {
             <th><input type="text"/></th>
             <th><input type="text"/></th>
             <th></th>
-          </tr>
+          </tr>*/}
         </thead>
         <tbody>
           {this.renderCITsForTest()}
@@ -185,14 +185,14 @@ export default class TestView extends Component {
             <th>Last modify</th>
             <th/>
           </tr>
-          <tr>
+          {/*<tr>
             <th></th>
             <th><input type="text"/></th>
             <th><input type="text"/></th>
             <th><input type="text"/></th>
             <th><input type="text"/></th>
             <th/>
-          </tr>
+          </tr>*/}
         </thead>
         <tbody>
           {this.renderHFsByVersion()}

@@ -245,14 +245,14 @@ export default class ProdView extends Component {
             <th>Last modify</th>
             <th/>
           </tr>
-          <tr>
+          {/*<tr>
             <th></th>
             <th><input type="text"/></th>
             <th><input type="text"/></th>
             <th><input type="text"/></th>
             <th><input type="text"/></th>
             <th/>
-          </tr>
+          </tr>*/}
         </thead>
         <tbody>
           {this.renderHFsByVersion()}
@@ -297,9 +297,9 @@ export default class ProdView extends Component {
 
   renderHFTab() {
     return (
-      <div className="container" id="hfList">
+      <div id="hfList">
         {this.renderDialog()}
-        <div className="row btnGrp">
+        <div className="container row btnGrp">
           {this.state.defineHF ? this.renderDefiningForm() : null}
           <div className="col-md-4">
             <button type="button" className="btn btn-info" onClick={this.handleDefineHF.bind(this)} disabled={this.state.buttonHFDisabled}>
@@ -436,8 +436,8 @@ export default class ProdView extends Component {
 
   renderCITTab() {
     return (
-      <div className="container" id="citList">
-        <div className="row btnGrp">
+      <div id="citList">
+        <div className="container row btnGrp">
           {this.props.listHFs.length == 0 ?
             null
             :
@@ -472,9 +472,8 @@ export default class ProdView extends Component {
               <th>Submitted by</th>
               <th>Submitted date</th>
               <th>Description</th>
-              <th></th>
             </tr>
-            <tr>
+            {/*<tr>
               <th></th>
               <th></th>
               <th><input type="text"/></th>
@@ -482,7 +481,7 @@ export default class ProdView extends Component {
               <th><input type="text"/></th>
               <th><input type="text"/></th>
               <th><input type="text"/></th>
-            </tr>
+            </tr>*/}
           </thead>
           <tbody>
             {this.renderCITsByHF()}
