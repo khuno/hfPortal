@@ -24,7 +24,7 @@
   color: black;
 }
 
-.btnGrp {
+.btnGrp, .detail {
   border-bottom: none!important
 }
 .btnGrp > * {
@@ -45,4 +45,8 @@ td, thead>tr>th {
 #signup-link {
   visibility: hidden;
   display: none;
+}
+
+.detail {
+  text-align: left;
 }

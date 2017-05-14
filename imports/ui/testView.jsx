@@ -13,11 +13,28 @@ String.prototype.capitalize = function() {
 }
 
 class HFRow extends Component {
+  constructor() {
+      super();
+      this.state = this.initializeState();
+    }
+
+  initializeState() {
+    var initState = {
+          plus: true
+        }
+    return initState;
+  }
+
+  handleToggle() {
+    this.props.toggleDetail(this.props.hf._id);
+    this.setState({plus: !this.state.plus})
+  }
+
   render() {
     var status = _.findWhere(this.props.listStatuses, {value: this.props.hf.status});
     return (
       <tr>
-        <td><span className="glyphicon glyphicon-plus"></span></td>
+        <td><a onClick={ev => this.handleToggle()}><span className={this.state.plus ? "glyphicon glyphicon-plus" : "glyphicon glyphicon-minus"}></span></a></td>
         <td>HF {this.props.hf.hfNumber}</td>
         <td>{this.props.hf.product.capitalize()}</td>
         <td>{status.label}</td>
@@ -29,6 +46,18 @@ class HFRow extends Component {
 
 class CitRow extends Component {
 
+  constructor() {
+      super();
+      this.state = this.initializeState();
+    }
+
+  initializeState() {
+    var initState = {
+          plus: true
+        }
+    return initState;
+  }
+
   handleTestResult(result) {
     if (result === 1) {
       Meteor.call('test.setTestResult', this.props.cit._id, "passed", this.props.cit.hfId);
@@ -38,16 +67,21 @@ class CitRow extends Component {
     }
   }
 
+  handleToggle() {
+    this.props.toggleDetail(this.props.cit._id);
+    this.setState({plus: !this.state.plus})
+  }
+
   render() {
     return (
       <tr>
         <td></td>
-        <td><span className="glyphicon glyphicon-plus"></span></td>
+        <td><a onClick={ev => this.handleToggle()}><span className={this.state.plus? "glyphicon glyphicon-plus" : "glyphicon glyphicon-minus"}></span></a></td>
         <td>CIT-{this.props.cit.citNo}</td>
         <td>{this.props.cit.components}</td>
         <td>{this.props.cit.email}</td>
         <td>{this.props.cit.createdAt.toLocaleString()}</td>
-        <td>{this.props.cit.description}</td>
+        <td>{this.props.cit.issueNo}</td>
         <td>{this.props.cit.testedBy ? this.props.cit.testedBy : ""}</td>
         <td>
             <div className="btn-group">
@@ -88,6 +122,14 @@ export default class TestView extends Component {
     this.setState({ activeTab: selectedTab });
   }
 
+  handleToggleDetail(id) {
+    document.getElementById(id + "detail").getAttribute("hidden") === null ?
+        document.getElementById(id + "detail").setAttribute("hidden", true)
+        : document.getElementById(id + "detail").removeAttribute("hidden");
+
+    // console.log(hidden);
+  }
+
   renderTabs() {
     return (
       <ul className="nav nav-tabs tab">
@@ -114,7 +156,10 @@ export default class TestView extends Component {
           let label = "HF "+hf.hfNumber+" "+version.label+ " ("+status.label+")";
           toReturn = _.union(toReturn,[
             <tr key={key.getTime()+Math.random()}><th colSpan="9">{label}</th></tr>,
-              ...tmpCits.map((cit) => <CitRow key={cit._id } cit={cit} listVersions={this.props.listVersions} />)
+              ...tmpCits.map((cit) => [
+                  <CitRow key={cit._id } cit={cit} listVersions={this.props.listVersions} toggleDetail={this.handleToggleDetail.bind(this)}/>,
+                  <tr key={cit._id + "detail"} id={cit._id + "detail"} hidden><td colSpan="8">{this.renderCITDetail(cit)}</td></tr>
+                ])
             ]);
           }
       }
@@ -134,7 +179,7 @@ export default class TestView extends Component {
             <th>Components</th>
             <th>Submitted by</th>
             <th>Submitted date</th>
-            <th>Description</th>
+            <th>Issue number</th>
             <th>Tested By</th>
             <th>Test Result</th>
           </tr>
@@ -156,6 +201,56 @@ export default class TestView extends Component {
     )
   }
 
+  renderCITDetail(cit) {
+    return [
+      <div key={Math.random()} className="row detail">
+        <div className="col-md-2"><b>Description:</b></div>
+        <div className="col-md-10">{cit.description}</div>
+      </div>,
+      <div key={Math.random()} className="row detail">
+        <div className="col-md-2"><b>Comment:</b></div>
+        <div className="col-md-10">{cit.comment}</div>
+      </div>,
+      <div key={Math.random()} className="row detail">
+        <div className="col-md-2"><b>Priority:</b></div>
+        <div className="col-md-10">{cit.priority}</div>
+      </div>,
+      <div key={Math.random()} className="row detail">
+        <div className="col-md-2"><b>Deactivable:</b></div>
+        <div className="col-md-10">{cit.deactivable? "True":"False"}</div>
+      </div>
+    ]
+  }
+
+  renderHFDetail(hfId) {
+    let citList = _.where(this.props.listCITs, {hfId: hfId});
+    let obj = [];
+    if (citList.length > 0) {
+      obj = (
+          citList.map((cit) => {
+            return (
+              <div key={Math.random()} className="row detail">
+                <div className="col-md-1">{"CIT-"+cit.citNo}</div>
+                <div className="col-md-2">{cit.issueNo}</div>
+                <div className="col-md-2">{cit.components}</div>
+                <div className="col-md-3">{cit.email}</div>
+                <div className="col-md-1">{cit.test ? "Test " + cit.test : ""}</div>
+                <div className="col-md-3">{cit.testedBy ? "Tested by "+ cit.testedBy:""}</div>
+              </div>
+            )
+          })
+      )
+    }
+    else {
+      obj = (
+        <div className="row detail">
+          <div className="col-md-3"><b>HF has no CITs!</b></div>
+        </div>
+      )
+    }
+    return (<div className="container">{obj}</div>);
+  }
+
   renderHFsByVersion() {
     var toReturn = [];
     for (ver of this.props.arrVersions) {
@@ -164,10 +259,20 @@ export default class TestView extends Component {
       ver = this.getVersionLabel(ver, this.props.listVersions);
       if ( tmpHFs.length > 0 )
       {
-        toReturn = _.union(toReturn,[
-          <tr key={key.getTime()+Math.random()}><th colSpan="6">{ver}</th></tr>,
-          ...tmpHFs.map((hf) => <HFRow key={hf._id } hf={hf} listStatuses={this.props.listStatuses}/>)
-        ]);
+        var hfRow = tmpHFs.map((hf) => {
+          return([
+            <HFRow key={hf._id } hf={hf} listStatuses={this.props.listStatuses} toggleDetail={this.handleToggleDetail.bind(this)}/>,
+            <tr key={hf._id + "detail"} id={hf._id + "detail"} hidden><td colSpan="6">{this.renderHFDetail(hf._id)}</td></tr>
+          ]);
+        });
+
+        toReturn = _.union(toReturn,[<tr key={key.getTime()+Math.random()}><th colSpan="6">{ver}</th></tr>]);
+        toReturn = _.union(toReturn, hfRow);
+
+        // toReturn = _.union(toReturn,[
+        //   <tr key={key.getTime()+Math.random()}><th colSpan="6">{ver}</th></tr>,
+        //   ...tmpHFs.map((hf) => <HFRow key={hf._id } hf={hf} listStatuses={this.props.listStatuses}/>)
+        // ]);
       }
     }
     return toReturn;

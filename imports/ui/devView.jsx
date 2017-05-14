@@ -16,21 +16,71 @@ var listAdditMails = [];
 
 const TabsDev = {
     addTab : 0,
-    listTab : 1
+    listTab : 1,
+    hfTab : 2
+}
+
+class HFRow extends Component {
+  constructor() {
+      super();
+      this.state = this.initializeState();
+    }
+
+  initializeState() {
+    var initState = {
+          plus: true
+        }
+    return initState;
+  }
+
+  handleToggle() {
+    this.props.toggleDetail(this.props.hf._id);
+    this.setState({plus: !this.state.plus})
+  }
+
+  render() {
+    var status = _.findWhere(this.props.listStatuses, {value: this.props.hf.status});
+    return (
+      <tr>
+        <td><a onClick={ev => this.handleToggle()}><span className={this.state.plus ? "glyphicon glyphicon-plus" : "glyphicon glyphicon-minus"}></span></a></td>
+        <td>HF {this.props.hf.hfNumber}</td>
+        <td>{this.props.hf.product.capitalize()}</td>
+        <td>{status.label}</td>
+        <td>{this.props.hf.modifiedAt.toLocaleString()}</td>
+      </tr>
+    )
+  }
 }
 
 class CitRow extends Component {
+  constructor() {
+      super();
+      this.state = this.initializeState();
+    }
+
+  initializeState() {
+    var initState = {
+          plus: true
+        }
+    return initState;
+  }
+
+  handleToggle() {
+    this.props.toggleDetail(this.props.cit._id);
+    this.setState({plus: !this.state.plus})
+  }
+
   render() {
     let version = _.findWhere(this.props.listVersions, {version: this.props.cit.version, product: this.props.cit.product});
     return (
       <tr>
-        <td><span className="glyphicon glyphicon-plus"></span></td>
+        <td><a onClick={ev => this.handleToggle()}><span className={this.state.plus? "glyphicon glyphicon-plus" : "glyphicon glyphicon-minus"}></span></a></td>
         <td>CIT-{this.props.cit.citNo}</td>
         <td>{version.label}</td>
         <td>{this.props.cit.components}</td>
         <td>{this.props.cit.email}</td>
         <td>{this.props.cit.createdAt.toLocaleString()}</td>
-        <td>{this.props.cit.description}</td>
+        <td>{this.props.cit.issueNo}</td>
       </tr>
     )
   }
@@ -62,6 +112,7 @@ export default class DevView extends Component {
 
   componentWillMount() {
     this.setState({selectedMails: this.props.listMails});
+    this.setState({myCITs: _.where(this.props.listCITs, {owner: Meteor.user()._id})})
   }
 
     onTabSelected(ev, selectedTab) {
@@ -148,6 +199,11 @@ export default class DevView extends Component {
 
    this.setState(this.initializeState());
 
+ }
+
+ getVersionLabel(ver, list) {
+   let obj = _.findWhere(list, {version: ver});
+   return obj.label.split(/ (.+)/)[1] || "";
  }
 
  renderIssueSpec() {
@@ -249,12 +305,22 @@ export default class DevView extends Component {
    )
  }
 
+ handleToggleDetail(id) {
+   document.getElementById(id + "detail").getAttribute("hidden") === null ?
+       document.getElementById(id + "detail").setAttribute("hidden", true)
+       : document.getElementById(id + "detail").removeAttribute("hidden");
+
+   // console.log(hidden);
+ }
+
  renderTabs() {
      return <ul className="nav nav-tabs tab">
              <li className={(this.state.activeTab == TabsDev.addTab ? "active" : "")}>
                <a href="javascript:void(0)"  onClick={ev => this.onTabSelected(ev, TabsDev.addTab)}>Add CIT</a></li>
              <li className={(this.state.activeTab == TabsDev.listTab ? "active" : "")}>
                <a href="javascript:void(0)" onClick={ev => this.onTabSelected(ev, TabsDev.listTab)}>My CITs</a></li>
+             <li className={(this.state.activeTab == TabsDev.hfTab ? "active" : "")}>
+               <a href="javascript:void(0)" onClick={ev => this.onTabSelected(ev, TabsDev.hfTab)}>Hotfixes</a></li>
            </ul>;
  }
 
@@ -274,7 +340,7 @@ export default class DevView extends Component {
    var toReturn = [];
    //process unassigned CITs
    {
-     let tmpCits = _.where(this.props.myCITs, {hfId: undefined});
+     let tmpCits = _.where(this.state.myCITs, {hfId: undefined});
 
      let key = new Date();
 
@@ -283,9 +349,10 @@ export default class DevView extends Component {
      if (tmpCits.length !== 0) {
        toReturn = _.union(toReturn,[
          <tr key={key.getTime()+Math.random()}><th colSpan="8">Unassigned</th></tr>,
-         ...tmpCits.map((cit) => {
-               return <CitRow key={cit._id } cit={cit} listVersions={this.props.listVersions} />
-           })
+         ...tmpCits.map((cit) => [
+          <CitRow key={cit._id } cit={cit} listVersions={this.props.listVersions} toggleDetail={this.handleToggleDetail.bind(this)}/>,
+          <tr key={cit._id + "detail"} id={cit._id + "detail"} hidden><td colSpan="8">{this.renderCITDetail(cit)}</td></tr>
+          ])
        ]);
      }
    }
@@ -295,7 +362,7 @@ export default class DevView extends Component {
 
      let arrHfs = _.sortBy(this.props.listHFs, function(o){ return -o.modifiedAt;});
      for (let hf of arrHfs) {
-       let tmpCits = _.where(this.props.myCITs, {hfId: hf._id});
+       let tmpCits = _.where(this.state.myCITs, {hfId: hf._id});
        let key = new Date();
 
        if (tmpCits.length !== 0) {
@@ -303,7 +370,10 @@ export default class DevView extends Component {
          let label = "HF "+hf.hfNumber+" "+version.label;
          toReturn = _.union(toReturn,[
            <tr key={key.getTime()+Math.random()}><th colSpan="8">{label}</th></tr>,
-           ...tmpCits.map((cit) => <CitRow key={cit._id } cit={cit} listVersions={this.props.listVersions}/>)
+           ...tmpCits.map((cit) => [
+            <CitRow key={cit._id } cit={cit} listVersions={this.props.listVersions} toggleDetail={this.handleToggleDetail.bind(this)}/>,
+            <tr key={cit._id + "detail"} id={cit._id + "detail"} hidden><td colSpan="8">{this.renderCITDetail(cit)}</td></tr>
+            ])
          ]);
        }
      }
@@ -323,7 +393,7 @@ export default class DevView extends Component {
              <th>Components</th>
              <th>Submitted by</th>
              <th>Submitted date</th>
-             <th>Description</th>
+             <th>Issue number</th>
              <th></th>
            </tr>
            {/*<tr>
@@ -343,11 +413,130 @@ export default class DevView extends Component {
    )
  }
 
+ renderCITDetail(cit) {
+   return [
+     <div key={Math.random()} className="row detail">
+       <div className="col-md-2"><b>Description:</b></div>
+       <div className="col-md-10">{cit.description}</div>
+     </div>,
+     <div key={Math.random()} className="row detail">
+       <div className="col-md-2"><b>Comment:</b></div>
+       <div className="col-md-10">{cit.comment}</div>
+     </div>,
+     <div key={Math.random()} className="row detail">
+       <div className="col-md-2"><b>Priority:</b></div>
+       <div className="col-md-10">{cit.priority}</div>
+     </div>,
+     <div key={Math.random()} className="row detail">
+       <div className="col-md-2"><b>Deactivable:</b></div>
+       <div className="col-md-10">{cit.deactivable? "True":"False"}</div>
+     </div>,
+     <div key={Math.random()} className="row detail">
+       { cit.test ?
+         [<div key={Math.random()} className="col-md-2"><b>Test result:</b></div>,
+         <div key={Math.random()} className="col-md-10">{cit.test.capitalize()}</div>]
+         : null
+       }
+   </div>,
+     <div key={Math.random()} className="row detail">
+       { cit.testedBy ?
+         [<div key={Math.random()} className="col-md-2"><b>Tested by:</b></div>,
+         <div key={Math.random()} className="col-md-10">{cit.testedBy}</div>]
+         : null
+       }
+     </div>
+   ]
+ }
+
+ renderHFDetail(hfId) {
+   let citList = _.where(this.props.listCITs, {hfId: hfId});
+   let obj = [];
+   if (citList.length > 0) {
+     obj = (
+         citList.map((cit) => {
+           return (
+             <div key={Math.random()} className="row detail">
+               <div className="col-md-1">{"CIT-"+cit.citNo}</div>
+               <div className="col-md-2">{cit.issueNo}</div>
+               <div className="col-md-2">{cit.components}</div>
+               <div className="col-md-3">{cit.email}</div>
+               <div className="col-md-1">{cit.test ? "Test " + cit.test : ""}</div>
+               <div className="col-md-3">{cit.testedBy ? "Tested by "+ cit.testedBy:""}</div>
+             </div>
+           )
+         })
+     )
+   }
+   else {
+     obj = (
+       <div className="row detail">
+         <div className="col-md-3"><b>HF has no CITs!</b></div>
+       </div>
+     )
+   }
+   return (<div className="container">{obj}</div>);
+ }
+
+ renderHFsByVersion() {
+   var toReturn = [];
+   for (ver of this.props.arrVersions) {
+     let tmpHFs = _.where(this.props.listHFs, {version: ver});
+     let key = new Date();
+     ver = this.getVersionLabel(ver, this.props.listVersions);
+     if ( tmpHFs.length > 0 )
+     {
+       var hfRow = tmpHFs.map((hf) => {
+         return([
+           <HFRow key={hf._id } hf={hf} listStatuses={this.props.listStatuses} toggleDetail={this.handleToggleDetail.bind(this)}/>,
+           <tr key={hf._id + "detail"} id={hf._id + "detail"} hidden><td colSpan="6">{this.renderHFDetail(hf._id)}</td></tr>
+         ]);
+       });
+
+       toReturn = _.union(toReturn,[<tr key={key.getTime()+Math.random()}><th colSpan="6">{ver}</th></tr>]);
+       toReturn = _.union(toReturn, hfRow);
+
+       // toReturn = _.union(toReturn,[
+       //   <tr key={key.getTime()+Math.random()}><th colSpan="6">{ver}</th></tr>,
+       //   ...tmpHFs.map((hf) => <HFRow key={hf._id } hf={hf} listStatuses={this.props.listStatuses}/>)
+       // ]);
+     }
+   }
+   return toReturn;
+ }
+
+ renderHFTab() {
+   return (
+     <table className="table table-hover">
+       <thead>
+         <tr>
+           <th></th>
+           <th>HF number</th>
+           <th>Product</th>
+           <th>Status</th>
+           <th>Last modify</th>
+           <th/>
+         </tr>
+         {/*<tr>
+           <th></th>
+           <th><input type="text"/></th>
+           <th><input type="text"/></th>
+           <th><input type="text"/></th>
+           <th><input type="text"/></th>
+           <th/>
+         </tr>*/}
+       </thead>
+       <tbody>
+         {this.renderHFsByVersion()}
+       </tbody>
+     </table>
+   )
+ }
+
  render() {
    return (
      <div>
        {this.renderTabs()}
-       {this.state.activeTab == TabsDev.addTab ? this.renderAddTab() : this.renderListTab()}
+       {this.state.activeTab == TabsDev.addTab ? this.renderAddTab() : (this.state.activeTab == TabsDev.listTab ? this.renderListTab() : this.renderHFTab())}
      </div>
    )
  }

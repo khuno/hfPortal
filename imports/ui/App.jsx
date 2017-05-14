@@ -40,8 +40,10 @@ render() {
       <div>
           {this.renderHeader()}
           {(this.props.currentUser && Roles.userIsInRole(this.props.currentUser._id, ['developer'])) ?
-              <DevView myCITs={this.props.cits} listComponents={this.props.listComponents} listMails={this.props.listMails} 
-                       listVersions={this.props.listVersions} listHFs={this.props.listHFs}/> : null}
+              <DevView listCITs={this.props.cits} listComponents={this.props.listComponents} listMails={this.props.listMails}
+                       listVersions={this.props.listVersions} listHFs={this.props.listHFs}
+                       arrVersions={_.keys(_.countBy(this.props.listVersions, function(ver){ return ver.version; }))}
+                       listStatuses={this.props.listStatuses}/> : null}
           {(this.props.currentUser && Roles.userIsInRole(this.props.currentUser._id, ['gvs', 'tester'])) ?
               <TestView listCITs={this.props.cits} listVersions={this.props.listVersions} listHFs={this.props.listHFs}
                     arrVersions={_.keys(_.countBy(this.props.listVersions, function(ver){ return ver.version; }))}
@@ -66,11 +68,13 @@ export default createContainer(({params}) => {
   {
     return {
       currentUser,
-      cits: cits.find({owner: currentUser._id}, {sort: {date_created: -1}}).fetch(),
+      cits: cits.find({}, {sort: {date_created: -1}}).fetch(),
+      cits: cits.find({}, {sort: {date_created: -1}}).fetch(),
       listHFs: hfs.find({}, {sort: {date_created: -1}}).fetch(),
       listVersions: versions.find({}).fetch(),
       listComponents: components.find({}).fetch(),
-      listMails: mail_list.find({}).fetch()
+      listMails: mail_list.find({}).fetch(),
+      listStatuses: statuses.find({}).fetch()
     }
   }
   else if (currentUser && Roles.userIsInRole(currentUser._id, ['production','gvs']))

@@ -55,6 +55,18 @@ class StatusButton extends Component {
 
 class CitRow extends Component {
 
+  constructor() {
+      super();
+      this.state = this.initializeState();
+    }
+
+  initializeState() {
+    var initState = {
+          plus: true
+        }
+    return initState;
+  }
+
   createLabelHF(hf) {
     let label = "HF ";
     let version = _.findWhere(this.props.listVersions, {version: hf.version, product: hf.product});
@@ -83,6 +95,11 @@ class CitRow extends Component {
     this.props.handleCheckboxChange(this.props.cit._id);
   }
 
+  handleToggle() {
+    this.props.toggleDetail(this.props.cit._id);
+    this.setState({plus: !this.state.plus})
+  }
+
   render() {
     //console.log(this.props);
     let version = _.findWhere(this.props.listVersions, {version: this.props.cit.version, product: this.props.cit.product});
@@ -90,13 +107,13 @@ class CitRow extends Component {
     return (
       <tr>
         <td>{this.props.checked !== undefined ? <input type="checkbox" checked={this.props.checked} onChange={ev => this.handleOnChange()}/> : null }</td>
-        <td><span className="glyphicon glyphicon-plus"></span></td>
-        <td>CIT-{this.props.cit.citNo}</td>
+        <td><a onClick={ev => this.handleToggle()}><span className={this.state.plus? "glyphicon glyphicon-plus" : "glyphicon glyphicon-minus"}></span></a></td>
+        <td>{"CIT-"+this.props.cit.citNo}</td>
         <td>{version.label}</td>
         <td>{this.props.cit.components}</td>
         <td>{this.props.cit.email}</td>
         <td>{this.props.cit.createdAt.toLocaleString()}</td>
-        <td>{this.props.cit.description}</td>
+        <td>{this.props.cit.issueNo}</td>
         {/*<td>
           {this.props.listHFs.length == 0 ?
             null
@@ -117,14 +134,31 @@ class CitRow extends Component {
 }
 
 class HFRow extends Component {
+  constructor() {
+      super();
+      this.state = this.initializeState();
+    }
+
+  initializeState() {
+    var initState = {
+          plus: true
+        }
+    return initState;
+  }
+
   handleProduceClick() {
     this.props.produce(this.props.hf._id);
+  }
+
+  handleToggle() {
+    this.props.toggleDetail(this.props.hf._id);
+    this.setState({plus: !this.state.plus})
   }
 
   render() {
     return (
       <tr>
-        <td><span className="glyphicon glyphicon-plus"></span></td>
+        <td><a onClick={ev => this.handleToggle()}><span className={this.state.plus ? "glyphicon glyphicon-plus" : "glyphicon glyphicon-minus"}></span></a></td>
         <td>HF {this.props.hf.hfNumber}</td>
         <td>{this.props.hf.product.capitalize()}</td>
         <td className="statusClmn"><StatusButton state={this.props.hf.status} listStatuses={this.props.listStatuses} hf={this.props.hf}/>
@@ -206,6 +240,14 @@ export default class ProdView extends Component {
     this.setState({componentsToProduce: componetList});
   }
 
+  handleToggleDetail(id) {
+    document.getElementById(id + "detail").getAttribute("hidden") === null ?
+        document.getElementById(id + "detail").setAttribute("hidden", true)
+        : document.getElementById(id + "detail").removeAttribute("hidden");
+
+    // console.log(hidden);
+  }
+
   renderTabs() {
       return <ul className="nav nav-tabs tab">
               <li className={(this.state.activeTab == TabsDev.hfTab ? "active" : "")}>
@@ -213,6 +255,35 @@ export default class ProdView extends Component {
               <li className={(this.state.activeTab == TabsDev.citTab ? "active" : "")}>
                 <a href="javascript:void(0)" onClick={ev => this.onTabSelected(ev, TabsDev.citTab)}>CITs</a></li>
             </ul>;
+  }
+
+  renderHFDetail(hfId) {
+    let citList = _.where(this.props.listCITs, {hfId: hfId});
+    let obj = [];
+    if (citList.length > 0) {
+      obj = (
+          citList.map((cit) => {
+            return (
+              <div key={Math.random()} className="row detail">
+                <div className="col-md-1">{"CIT-"+cit.citNo}</div>
+                <div className="col-md-2">{cit.issueNo}</div>
+                <div className="col-md-2">{cit.components}</div>
+                <div className="col-md-3">{cit.email}</div>
+                <div className="col-md-1">{cit.test ? "Test " + cit.test : ""}</div>
+                <div className="col-md-3">{cit.testedBy ? "Tested by "+ cit.testedBy:""}</div>
+              </div>
+            )
+          })
+      )
+    }
+    else {
+      obj = (
+        <div className="row detail">
+          <div className="col-md-3"><b>HF has no CITs!</b></div>
+        </div>
+      )
+    }
+    return (<div className="container">{obj}</div>);
   }
 
   renderHFsByVersion() {
@@ -223,10 +294,19 @@ export default class ProdView extends Component {
       ver = this.getVersionLabel(ver, this.props.listVersions);
       if ( tmpHFs.length > 0 )
       {
-        toReturn = _.union(toReturn,[
-          <tr key={key.getTime()+Math.random()}><th colSpan="6">{ver}</th></tr>,
-          ...tmpHFs.map((hf) => <HFRow key={hf._id } hf={hf} listStatuses={this.props.listStatuses} produce={this.handleProduceButton.bind(this)}/>)
-        ]);
+        var hfRow = tmpHFs.map((hf) => {
+          return([
+            <HFRow key={hf._id } hf={hf} listStatuses={this.props.listStatuses} produce={this.handleProduceButton.bind(this)} toggleDetail={this.handleToggleDetail.bind(this)}/>,
+            <tr key={hf._id + "detail"} id={hf._id + "detail"} hidden><td colSpan="6">{this.renderHFDetail(hf._id)}</td></tr>
+          ]);
+        });
+
+        toReturn = _.union(toReturn,[<tr key={key.getTime()+Math.random()}><th colSpan="6">{ver}</th></tr>]);
+        toReturn = _.union(toReturn, hfRow);
+        // toReturn = _.union(toReturn,[
+        //   <tr key={key.getTime()+Math.random()}><th colSpan="6">{ver}</th></tr>,
+        //   ...tmpHFs.map((hf) => <HFRow key={hf._id } hf={hf} listStatuses={this.props.listStatuses} produce={this.handleProduceButton.bind(this)}/>)
+        // ]);
       }
     }
     return toReturn;
@@ -325,6 +405,41 @@ export default class ProdView extends Component {
     return possibleHFs;
   }
 
+  renderCITDetail(cit) {
+    return [
+      <div key={Math.random()} className="row detail">
+        <div className="col-md-2"><b>Description:</b></div>
+        <div className="col-md-10">{cit.description}</div>
+      </div>,
+      <div key={Math.random()} className="row detail">
+        <div className="col-md-2"><b>Comment:</b></div>
+        <div className="col-md-10">{cit.comment}</div>
+      </div>,
+      <div key={Math.random()} className="row detail">
+        <div className="col-md-2"><b>Priority:</b></div>
+        <div className="col-md-10">{cit.priority}</div>
+      </div>,
+      <div key={Math.random()} className="row detail">
+        <div className="col-md-2"><b>Deactivable:</b></div>
+        <div className="col-md-10">{cit.deactivable? "True":"False"}</div>
+      </div>,
+        <div key={Math.random()} className="row detail">
+          { cit.test ?
+            [<div key={Math.random()} className="col-md-2"><b>Test result:</b></div>,
+            <div key={Math.random()} className="col-md-10">{cit.test.capitalize()}</div>]
+            : null
+          }
+      </div>,
+        <div key={Math.random()} className="row detail">
+          { cit.testedBy ?
+            [<div key={Math.random()} className="col-md-2"><b>Tested by:</b></div>,
+            <div key={Math.random()} className="col-md-10">{cit.testedBy}</div>]
+            : null
+          }
+        </div>
+    ]
+  }
+
   renderCITsByHF() {
     var toReturn = [];
     //process unassigned CITs
@@ -339,20 +454,26 @@ export default class ProdView extends Component {
         toReturn = _.union(toReturn,[
           <tr key={key.getTime()+Math.random()}><th colSpan="8">Unassigned</th></tr>,
           ...tmpCits.map((cit) => {
+            let obj = {};
             let hf = (this.state.addCITsToHf ? _.findWhere(this.props.listHFs, {_id: this.state.addCITsToHf.hfId }) : undefined);
             if (hf !== undefined) {
               if (cit.version === hf.version && cit.product === hf.product)
               {
-                return <CitRow key={cit._id } cit={cit} listVersions={this.props.listVersions} listHFs={this.possibleHFs(cit)}
-                                          checked={_.contains(this.state.checkedCITs, cit._id)} handleCheckboxChange={this.toggleCheckbox.bind(this)}/>
+                obj = <CitRow key={cit._id } cit={cit} listVersions={this.props.listVersions} listHFs={this.possibleHFs(cit)}
+                       checked={_.contains(this.state.checkedCITs, cit._id)} handleCheckboxChange={this.toggleCheckbox.bind(this)} toggleDetail={this.handleToggleDetail.bind(this)}/>
               }
               else {
-                return <CitRow key={cit._id } cit={cit} listVersions={this.props.listVersions} listHFs={this.possibleHFs(cit)}/>
+                obj = <CitRow key={cit._id } cit={cit} listVersions={this.props.listVersions} listHFs={this.possibleHFs(cit)} toggleDetail={this.handleToggleDetail.bind(this)}/>
               }
             }
             else {
-              return <CitRow key={cit._id } cit={cit} listVersions={this.props.listVersions} listHFs={this.possibleHFs(cit)}/>
+              obj = <CitRow key={cit._id } cit={cit} listVersions={this.props.listVersions} listHFs={this.possibleHFs(cit)} toggleDetail={this.handleToggleDetail.bind(this)}/>
             }
+
+            return [
+              obj,
+              <tr key={cit._id + "detail"} id={cit._id + "detail"} hidden><td colSpan="8">{this.renderCITDetail(cit)}</td></tr>
+            ]
           })
         ]);
       }
@@ -375,7 +496,10 @@ export default class ProdView extends Component {
           let label = "HF "+hf.hfNumber+" "+version.label;
           toReturn = _.union(toReturn,[
             <tr key={key.getTime()+Math.random()}><th colSpan="8">{label}</th></tr>,
-            ...tmpCits.map((cit) => <CitRow key={cit._id } cit={cit} listVersions={this.props.listVersions} listHFs={[]}/>)
+            ...tmpCits.map((cit) => [
+              <CitRow key={cit._id } cit={cit} listVersions={this.props.listVersions} listHFs={[]} toggleDetail={this.handleToggleDetail.bind(this)}/>,
+              <tr key={cit._id + "detail"} id={cit._id + "detail"} hidden><td colSpan="8">{this.renderCITDetail(cit)}</td></tr>
+            ])
           ]);
         }
       }
@@ -471,7 +595,7 @@ export default class ProdView extends Component {
               <th>Components</th>
               <th>Submitted by</th>
               <th>Submitted date</th>
-              <th>Description</th>
+              <th>Issue number</th>
             </tr>
             {/*<tr>
               <th></th>
