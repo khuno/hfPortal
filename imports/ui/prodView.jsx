@@ -163,7 +163,7 @@ class HFRow extends Component {
         <td>{this.props.hf.product.capitalize()}</td>
         <td className="statusClmn"><StatusButton state={this.props.hf.status} listStatuses={this.props.listStatuses} hf={this.props.hf}/>
             {this.props.hf.status === "requested"?<button type="button" className="btn-xs btn-info" data-toggle="modal" data-target="#componetDialog" onClick={ev => this.handleProduceClick()}>Produce</button>:null}
-            {this.props.hf.status === "repro_req"?<button type="button" className="btn-xs btn-info">Reproduce</button>:null}</td>
+            {this.props.hf.status === "repro_req"?<button type="button" className="btn-xs btn-info" data-toggle="modal" data-target="#componetDialog" onClick={ev => this.handleProduceClick()}>Reproduce</button>:null}</td>
         <td>{this.props.hf.modifiedAt.toLocaleString()}</td>
         <td>{this.props.hf.status === "requested" || this.props.hf.status === "defined"?
           <button type="button" className="btn-xs btn-error"><span className="glyphicon glyphicon-remove" /></button>
