@@ -33,15 +33,7 @@ Meteor.methods({
       hfNumber: newHfNumber
     });
     if (Meteor.isServer) {
-      let sbj = "New HF was defined(HF "+newHfNumber+" "+ver.label+")";
-      let txt = "Hello all,\n"+sbj;
-      //console.log(Email);
-      Email.send({
-        to: "Sergii Khunovych <sergii.khunovych@ixperta.com>",
-        from: "<4km-hfportal@unify.com>",
-        subject: sbj,
-        text: txt
-      });
+      Meteor.call('mail.hfDefined', ver, newHfNumber);
     }
   },
 
@@ -57,20 +49,10 @@ Meteor.methods({
       throw new Meteor.Error('not-permitted');
     }
 
-    hfs.update(hf._id, { $set: {status: newStatus, modifiedAt: new Date()}});
+    // hfs.update(hf._id, { $set: {status: newStatus, modifiedAt: new Date()}});
 
     if (Meteor.isServer) {
-      let version = versions.findOne({product: hf.product, version: hf.version});
-      let status = statuses.findOne({value: newStatus});
-      let sbj = "HF status changed";
-      let txt = "Hello all,\n"+"Status of HF "+hf.hfNumber+" "+version.label+" changed to "+status.label+".";
-      //console.log(Email);
-      Email.send({
-        to: "Sergii Khunovych <sergii.khunovych@ixperta.com>",
-        from: "<4km-hfportal@unify.com>",
-        subject: sbj,
-        text: txt
-      });
+      Meteor.call('mail.hfStatusChanged', hf, newStatus);
     }
   },
 

@@ -3,6 +3,7 @@ import '../imports/api/cits.js';
 import '../imports/api/hfs.js';
 import '../imports/api/jira.js';
 import '../imports/api/test.js';
+import '../imports/api/mail_notification.js';
 import {versions} from '../imports/api/versions.js';
 import {statuses} from '../imports/api/statuses.js';
 import {components} from '../imports/api/components.js';
