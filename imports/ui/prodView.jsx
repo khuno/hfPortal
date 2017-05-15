@@ -187,7 +187,8 @@ export default class ProdView extends Component {
           defineHF: false,
           selectedVersion: "",
           buttonHFDisabled: false,
-          componentsToProduce: []
+          componentsToProduce: [],
+          newVersion: ""
         }
     return initState;
   }
@@ -375,10 +376,53 @@ export default class ProdView extends Component {
     )
   }
 
+  onVersionAdd(ev) {
+    this.setState({newVersion: ev.target.value});
+  }
+
+  updateNewVersion() {
+    this.setState({newVersion: ""});
+  }
+
+  saveNewVersion() {
+    let tmp = this.state.newVersion.toLowerCase().split(" ");
+    let newVer = {
+      label: this.state.newVersion,
+      product: tmp[0],
+      version: tmp[1]+"_"+tmp[2],
+      value: tmp[0]+"_"+tmp[1]+"_"+tmp[2]
+    }
+    Meteor.call('versions.insert', newVer);
+    this.setState({newVersion: ""});
+  }
+
+  renderVersionDefine() {
+    return (
+      <div className="modal fade" id="versionDialog" role="dialog">
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-body">
+              <h4 className="modal-title">Enter new supported version (example "Assistant V7 R2.14")</h4>
+              <div className="container">
+                <input type="text" value={this.state.newVersion} onChange={ev => this.onVersionAdd(ev)}/>
+                <button type="button" className="btn btn-info" onClick={this.saveNewVersion.bind(this)} disabled={this.state.newVersion==""}>Define</button>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-default" data-dismiss="modal" onClick={this.updateNewVersion.bind(this)}>Close</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    )
+  }
+
   renderHFTab() {
     return (
       <div id="hfList">
         {this.renderDialog()}
+        {this.renderVersionDefine()}
         <div className="container row btnGrp">
           {this.state.defineHF ? this.renderDefiningForm() : null}
           <div className="col-md-4">
@@ -386,6 +430,11 @@ export default class ProdView extends Component {
               Define new HF
             </button>
             {this.state.defineHF ? <button type="button" className="btn btn-error" onClick={this.handleCancel.bind(this)}>Cancel</button> : null}
+          </div>
+          <div className="container">
+            <button type="button" className="btn btn-info pull-right" data-toggle="modal" data-target="#versionDialog">
+              Define new supported version
+            </button>
           </div>
         </div>
         {this.renderHFTable()}
