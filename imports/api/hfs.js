@@ -49,7 +49,7 @@ Meteor.methods({
       throw new Meteor.Error('not-permitted');
     }
 
-    // hfs.update(hf._id, { $set: {status: newStatus, modifiedAt: new Date()}});
+    hfs.update(hf._id, { $set: {status: newStatus, modifiedAt: new Date()}});
 
     if (Meteor.isServer) {
       Meteor.call('mail.hfStatusChanged', hf, newStatus);
